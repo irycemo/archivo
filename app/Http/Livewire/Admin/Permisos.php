@@ -23,9 +23,8 @@ class Permisos extends Component
          ];
     }
 
-    protected $messages = [
-        'nombre.required' => 'El campo nombre es requerido',
-        'area.required' => 'El campo área es requerido',
+    protected $validationAttributes  = [
+        'area' => 'área',
     ];
 
     public function resetearTodo(){

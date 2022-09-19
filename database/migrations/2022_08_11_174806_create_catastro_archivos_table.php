@@ -15,14 +15,14 @@ return new class extends Migration
     {
         Schema::create('catastro_archivos', function (Blueprint $table) {
             $table->id();
-            $table->string('estado');
+            $table->string('estado')->default('disponible');
             $table->string('tomo')->nullable();
             $table->unsignedInteger('localidad');
             $table->unsignedInteger('oficina');
             $table->unsignedInteger('tipo');
             $table->unsignedInteger('registro');
-            $table->unsignedInteger('folio');
-            $table->boolean('tarjeta');
+            $table->unsignedInteger('folio')->default(0);
+            $table->boolean('tarjeta')->default(false);
             $table->foreignId('creado_por')->nullable()->references('id')->on('users');
             $table->foreignId('actualizado_por')->nullable()->references('id')->on('users');
             $table->timestamps();

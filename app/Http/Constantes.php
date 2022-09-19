@@ -9,6 +9,10 @@ class Constantes{
         'Roles',
         'Permisos',
         'Usuarios',
+        'Solicitudes Rpp',
+        'Solicitudes Catastro',
+        'Incidencias',
+        'Archivo'
     ];
 
     /* Usuarios */
@@ -26,9 +30,12 @@ class Constantes{
         'Departamento de Archivo RPP',
         'Departamento de Anotaciones y Trámites Administrativos',
         'Departamento de lo Contencioso',
-        'Departamento de Operaciones y Desarrollo de Sistemas',
+        'Departamento de Operación y Desarrollo de Sistemas',
         'Departamento de Soporte Técnico y Redes',
         'Departamento de Bases de Datos',
+        'Departamento de Valuación',
+        'Departamento de Gestión Catastral',
+        'Departamento de Registro de Cartografía',
         'Departamento de Control Presupuestal y Recursos Financieros',
         'Departamento de Recursos Humanos, Materiales y Servicios Generales',
         'Departamento de Archivo Catastro',

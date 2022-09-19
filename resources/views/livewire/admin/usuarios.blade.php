@@ -109,11 +109,11 @@
 
                         </th>
 
-                        <th wire:click="order('ubicacion')" class="cursor-pointer px-3 py-3 hidden lg:table-cell">
+                        <th wire:click="order('area')" class="cursor-pointer px-3 py-3 hidden lg:table-cell">
 
-                            Ubicación
+                            Área
 
-                            @if($sort == 'ubicacion')
+                            @if($sort == 'area')
 
                                 @if($direction == 'asc')
 
@@ -240,6 +240,8 @@
 
                     @foreach($usuarios as $user)
 
+                        @if($user->hasRole('Administrador') && !auth()->user()->hasRole('Administrador')) @continue  @endif
+
                         <tr class="text-sm font-medium text-gray-500 bg-white flex lg:table-row flex-row lg:flex-row flex-wrap lg:flex-no-wrap mb-10 lg:mb-0">
 
                             <td class="px-3 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
@@ -288,7 +290,7 @@
 
                                 <span class="lg:hidden  absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Ubicaión</span>
 
-                                {{ $user->ubicacion }}
+                                {{ $user->area }}
 
                             </td>
 
@@ -548,36 +550,69 @@
 
             </div>
 
-            <div class="flex-auto mb-5">
+            <div class="flex flex-col md:flex-row justify-between md:space-x-3 mb-5">
 
-                <div>
+                <div class="flex-auto mb-5">
 
-                    <Label>Ubicación</Label>
+                    <div>
+
+                        <Label>Ubicación</Label>
+                    </div>
+
+                    <div>
+
+                        <select class="bg-white rounded text-sm w-full" wire:model.defer="localidad">
+                            <option selected value="">Selecciona una opción</option>
+
+                            @foreach (App\Http\Constantes::LOCALIDADES as $ubicacion)
+
+                                <option value="{{ $ubicacion }}">{{ $ubicacion }}</option>
+
+                            @endforeach
+
+                        </select>
+
+                    </div>
+
+                    <div>
+
+                        @error('localidad') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
+
+                    </div>
+
                 </div>
 
-                <div>
+                <div class="flex-auto mb-5">
 
-                    <select class="bg-white rounded text-sm w-full" wire:model.defer="ubicacion">
-                        <option selected value="">Selecciona una opción</option>
+                    <div>
 
-                        @foreach (App\Http\Constantes::AREAS_ADSCRIPCION as $ubicacion)
+                        <Label>Área</Label>
+                    </div>
 
-                            <option value="{{ $ubicacion }}">{{ $ubicacion }}</option>
+                    <div>
 
-                        @endforeach
+                        <select class="bg-white rounded text-sm w-full" wire:model.defer="area">
+                            <option selected value="">Selecciona una opción</option>
 
-                    </select>
+                            @foreach (App\Http\Constantes::AREAS_ADSCRIPCION as $ubicacion)
 
-                </div>
+                                <option value="{{ $ubicacion }}">{{ $ubicacion }}</option>
 
-                <div>
+                            @endforeach
 
-                    @error('ubicacion') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
+                        </select>
+
+                    </div>
+
+                    <div>
+
+                        @error('area') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
+
+                    </div>
 
                 </div>
 
             </div>
-
 
         </x-slot>
 

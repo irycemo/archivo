@@ -17,7 +17,7 @@ class CatastroArchivoFactory extends Factory
     public function definition()
     {
         return [
-            'estado' => $this->faker->randomElement(['dispanible', 'ocupado']),
+            'estado' => $this->faker->randomElement(['disponible', 'ocupado']),
             'tomo' => $this->faker->randomNumber,
             'localidad' => $this->faker->numberBetween(1,7),
             'oficina' => 101,

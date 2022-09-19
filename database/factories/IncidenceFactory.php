@@ -19,8 +19,9 @@ class IncidenceFactory extends Factory
         return [
             'tipo' => $this->faker->word(),
             'observaciones' => $this->faker->text(),
-            'incidenceable_id' => $this->faker->numberBetween(1,1000),
+            'incidenceable_id' => $this->faker->numberBetween(1,500),
             'incidenceable_type' => $this->faker->randomElement(['App\Models\CatastroArchivo', 'App\Models\RppArchivo']),
+            'creado_por' => 1
         ];
     }
 }

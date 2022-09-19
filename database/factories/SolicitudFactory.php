@@ -18,8 +18,8 @@ class SolicitudFactory extends Factory
     {
         return [
             'tiempo' => $this->faker->randomNumber,
-            'estado' => $this->faker->randomElement(['dispanible', 'transito', 'recibido', 'regresado']),
-            ''
+            'estado' => $this->faker->randomElement(['nueva', 'transito', 'recibido', 'regresado']),
+            'numero' => $this->faker->unique()->randomNumber
         ];
     }
 }

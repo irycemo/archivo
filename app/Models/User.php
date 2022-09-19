@@ -35,7 +35,8 @@ class User extends Authenticatable
         'creado_por',
         'actualizado_por',
         'status',
-        'ubicacion'
+        'localidad',
+        'area'
     ];
 
     /**

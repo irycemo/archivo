@@ -18,7 +18,8 @@ class Usuarios extends Component
     public $email;
     public $status;
     public $role;
-    public $ubicacion;
+    public $localidad;
+    public $area;
 
     protected function rules(){
         return [
@@ -26,19 +27,20 @@ class Usuarios extends Component
             'email' => 'required|email:rfc,dns|unique:users,email,' . $this->selected_id,
             'status' => 'required|in:activo,inactivo',
             'role' => 'required',
-            'ubicacion' => 'required',
+            'area' => 'required',
+            'localidad' => 'required',
          ];
     }
 
-    protected $messages = [
-        'nombre.required' => 'El campo nombre es obligatorio',
-        'role.required' => 'El campo rol es obligatorio',
-        'ubicacion.required' => 'El campo ubicación es obligatorio',
+    protected $validationAttributes  = [
+        'area' => 'área',
+        'ubicacion' => 'ubicación',
+        'role' => 'rol'
     ];
 
     public function resetearTodo(){
 
-        $this->reset(['modalBorrar', 'crear', 'editar', 'modal', 'nombre', 'email', 'status','role', 'ubicacion']);
+        $this->reset(['modalBorrar', 'crear', 'editar', 'modal', 'nombre', 'email', 'status','role', 'localidad', 'area']);
         $this->resetErrorBag();
         $this->resetValidation();
     }
@@ -53,8 +55,9 @@ class Usuarios extends Component
         $this->nombre = $usuario['name'];
         $this->email = $usuario['email'];
         $this->status = $usuario['status'];
-        $this->ubicacion = $usuario['ubicacion'];
-        $this->role = 1;
+        $this->localidad = $usuario['localidad'];
+        $this->area = $usuario['area'];
+        $this->role = $usuario['roles'][0]['id'];
 
     }
 
@@ -68,7 +71,8 @@ class Usuarios extends Component
                 'name' => $this->nombre,
                 'email' => $this->email,
                 'status' => $this->status,
-                'ubicacion' => $this->ubicacion,
+                'localidad' => $this->localidad,
+                'area' => $this->area,
                 'password' => 'sistema',
                 'creado_por' => auth()->user()->id
             ]);
@@ -80,6 +84,7 @@ class Usuarios extends Component
             $this->dispatchBrowserEvent('mostrarMensaje', ['success', "El usuario se creó con éxito."]);
 
         } catch (\Throwable $th) {
+
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
             $this->resetearTodo();
         }
@@ -98,7 +103,8 @@ class Usuarios extends Component
                 'name' => $this->nombre,
                 'email' => $this->email,
                 'status' => $this->status,
-                'ubicacion' => $this->ubicacion,
+                'localidad' => $this->localidad,
+                'area' => $this->area,
                 'actualizado_por' => auth()->user()->id
             ]);
 
@@ -137,19 +143,47 @@ class Usuarios extends Component
     public function render()
     {
 
-        $usuarios = User::with('creadoPor', 'actualizadoPor')->where('name', 'LIKE', '%' . $this->search . '%')
-                            ->orWhere('email', 'LIKE', '%' . $this->search . '%')
-                            ->orWhere('ubicacion', 'LIKE', '%' . $this->search . '%')
-                            ->orWhere('status', 'LIKE', '%' . $this->search . '%')
-                            ->orWhere(function($q){
-                                return $q->whereHas('roles', function($q){
-                                    return $q->where('name', 'LIKE', '%' . $this->search . '%');
-                                });
-                            })
-                            ->orderBy($this->sort, $this->direction)
-                            ->paginate($this->pagination);
+        if(auth()->user()->hasRole('Administrador')){
 
-        $roles = Role::all();
+            $usuarios = User::with('creadoPor', 'actualizadoPor', 'roles')
+                                ->where('name', 'LIKE', '%' . $this->search . '%')
+                                ->orWhere('email', 'LIKE', '%' . $this->search . '%')
+                                ->orWhere('localidad', 'LIKE', '%' . $this->search . '%')
+                                ->orWhere('area', 'LIKE', '%' . $this->search . '%')
+                                ->orWhere('status', 'LIKE', '%' . $this->search . '%')
+                                ->orWhere(function($q){
+                                    return $q->whereHas('roles', function($q){
+                                        return $q->where('name', 'LIKE', '%' . $this->search . '%');
+                                    });
+                                })
+                                ->orderBy($this->sort, $this->direction)
+                                ->paginate($this->pagination);
+
+            $roles = Role::all();
+
+        }else{
+
+            $usuarios = User::with('creadoPor', 'actualizadoPor', 'roles')
+                                ->where('localidad', auth()->user()->localidad)
+                                ->where(function($q){
+                                    $q->where('email', 'LIKE', '%' . $this->search . '%')
+                                    ->orWhere('name', 'LIKE', '%' . $this->search . '%')
+                                    ->orWhere('area', 'LIKE', '%' . $this->search . '%')
+                                    ->orWhere('status', 'LIKE', '%' . $this->search . '%')
+                                    ->orWhere(function($q){
+                                        return $q->whereHas('roles', function($q){
+                                            return $q->where('name', 'LIKE', '%' . $this->search . '%');
+                                        });
+                                    });
+                                })
+                                ->orderBy($this->sort, $this->direction)
+                                ->paginate($this->pagination);
+
+            $roles = Role::where('name', 'LIKE', '%' . auth()->user()->localidad . '%')->get();
+
+        }
+
+
 
         return view('livewire.admin.usuarios', compact('usuarios', 'roles'))->extends('layouts.admin');
     }

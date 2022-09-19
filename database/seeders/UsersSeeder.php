@@ -20,7 +20,8 @@ class UsersSeeder extends Seeder
     {
         User::create([
             'name' => 'Admin',
-            'ubicacion' => 'catastro',
+            'localidad' => 'Catastro',
+            'area' => 'Dirección de Catastro',
             'status' => 'activo',
             'email' => 'correo@correo.com',
             'password' => Hash::make('12345678'),

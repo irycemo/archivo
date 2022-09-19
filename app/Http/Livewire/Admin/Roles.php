@@ -22,10 +22,6 @@ class Roles extends Component
          ];
     }
 
-    protected $messages = [
-        'nombre.required' => 'El campo nombre es requerido'
-    ];
-
     public function resetearTodo(){
 
         $this->reset(['modalBorrar', 'crear', 'editar', 'modal', 'nombre', 'listaDePermisos']);

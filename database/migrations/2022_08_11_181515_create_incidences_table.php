@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('tipo');
             $table->text('observaciones');
-            $table->string('incidenceable_id');
+            $table->unsignedInteger('incidenceable_id');
             $table->string('incidenceable_type');
             $table->foreignId('creado_por')->nullable()->references('id')->on('users');
             $table->foreignId('actualizado_por')->nullable()->references('id')->on('users');

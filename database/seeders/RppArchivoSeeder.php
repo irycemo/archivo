@@ -15,6 +15,6 @@ class RppArchivoSeeder extends Seeder
      */
     public function run()
     {
-        RppArchivo::factory(1000)->create();
+        RppArchivo::factory(500)->create();
     }
 }

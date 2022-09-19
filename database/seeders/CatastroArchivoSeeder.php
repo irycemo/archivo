@@ -15,6 +15,6 @@ class CatastroArchivoSeeder extends Seeder
      */
     public function run()
     {
-        CatastroArchivo::factory(1000)->create();
+        CatastroArchivo::factory(500)->create();
     }
 }

@@ -21,7 +21,7 @@
 
             </div>
 
-            @can('Crear archivo')
+            @can('Crear archivo catastro')
 
                 <button wire:click="abrirModalCrear" class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 float-right mb-5 text-sm py-2 px-4 text-white rounded-full focus:outline-none hidden md:block">Agregar nuevo archivo</button>
 
@@ -195,7 +195,7 @@
 
                         <th wire:click="order('registro')" class="cursor-pointer px-3 py-3 hidden lg:table-cell">
 
-                            Registro
+                            Predio
 
                             @if($sort == 'registro')
 
@@ -283,6 +283,8 @@
 
                         </th>
 
+                        <th class="px-3 py-3 hidden lg:table-cell">Archivo</th>
+
                         <th wire:click="order('created_at')" class="cursor-pointer px-3 py-3 hidden lg:table-cell">
 
                             Registro
@@ -361,6 +363,8 @@
 
                                 @if($archivo->estado == 'disponible')
                                     <span class="bg-green-400 px-2 py-1 text-xs rounded-full capitalize text-white">{{ $archivo->estado }}</span>
+                                @elseif($archivo->estado == 'solicitado')
+                                    <span class="px-2 py-1 bg-yellow-400 text-white text-xs rounded-full capitalize">{{ $archivo->estado }}</span>
                                 @else
                                     <span class="bg-red-400 px-2 py-1 text-xs rounded-full capitalize text-white">{{ $archivo->estado }}</span>
                                 @endif
@@ -405,7 +409,7 @@
 
                             <td class="px-3 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
 
-                                <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Registro</span>
+                                <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Predio</span>
 
                                 {{ $archivo->registro }}
 
@@ -427,6 +431,22 @@
                                     <span class="bg-green-400 px-2 py-1 text-xs rounded-full capitalize text-white">Si</span>
                                 @else
                                     <span class="bg-red-400 px-2 py-1 text-xs rounded-full capitalize text-white">No</span>
+                                @endif
+
+                            </td>
+
+                            <td class="px-3 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
+
+                                <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Folio</span>
+
+                                @if($archivo->archivo)
+
+                                    <a href="{{ Storage::disk('pdfs_catastro')->url($archivo->archivo->url) }}" class="bg-red-400 hover:shadow-lg text-white text-xs px-3 py-1 rounded-full hover:bg-red-700 focus:outline-none mr-2 md:mr-0" target="_blank">PDF</a>
+
+                                @else
+
+                                    N/A
+
                                 @endif
 
                             </td>
@@ -465,7 +485,27 @@
 
                                 <div class="flex justify-center lg:justify-start">
 
-                                    @can('Editar archivo')
+                                    @can('Incidencias archivo catastro')
+
+                                        <button
+                                            wire:click="abrirModalIncidencia({{$archivo->id}})"
+                                            wire:loading.attr="disabled"
+                                            wire:target="abrirModalIncidencia({{$archivo->id}})"
+                                            class="bg-green-400 hover:shadow-lg text-white text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-green-700 flex focus:outline-none"
+                                        >
+
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+
+                                            <p>Incidencias</p>
+
+                                        </button>
+
+                                    @endcan
+
+                                    @can('Editar archivo catastro')
 
                                         <button
                                             wire:click="abrirModalEditar({{$archivo}})"
@@ -485,7 +525,7 @@
 
                                     @endcan
 
-                                    @can('Borrar archivo')
+                                    @can('Borrar archivo catastro')
 
                                         <button
                                             wire:click="abrirModalBorrar({{$archivo}})"
@@ -702,8 +742,8 @@
                         <select class="bg-white rounded text-sm w-full" wire:model.defer="tipo">
 
                             <option value="" selected>Seleccione una opción</option>
-                            <option value="1">Rustico</option>
-                            <option value="2">Urbano</option>
+                            <option value="2">Rustico</option>
+                            <option value="1">Urbano</option>
 
                         </select>
 
@@ -737,6 +777,14 @@
                     </div>
 
                 </div>
+
+            </div>
+
+            <x-filepond wire:model="archivoPDF" />
+
+            <div>
+
+                @error('archivoPDF') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
 
             </div>
 
@@ -814,5 +862,157 @@
         </x-slot>
 
     </x-jet-confirmation-modal>
+
+    <x-jet-dialog-modal wire:model="modalIncidencias">
+
+        <x-slot name="title">
+
+            Incidencias
+
+        </x-slot>
+
+        <x-slot name="content">
+
+            @if($incidencias)
+
+                <div class="flex flex-col md:flex-row justify-between md:space-x-3 mb-5">
+
+                    <div class="flex-auto ">
+
+                        <table class="rounded-lg w-full overflow-hidden table-auto  xl:table-fixed">
+
+                            <thead class="border-b border-gray-300 bg-gray-50">
+
+                                <tr class="text-xs text-gray-500 uppercase text-left traling-wider">
+                                    <th class="px-2 py-3">Tipo</th>
+                                    <th class="px-2 py-3">Observaciónes</th>
+                                    <th class="px-2 py-3">Registrado Por</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody class="divide-y divide-gray-200">
+
+                                @foreach ($incidencias as $incidencia)
+
+                                    <tr class="text-sm text-gray-500 bg-white">
+
+                                        <td class="px-2 py-3 w-full text-gray-800 text-sm">
+                                            {{ $incidencia->tipo }}
+                                        </td>
+                                        <td class="px-2 py-3 w-full text-gray-800 text-sm">
+                                            {{ $incidencia->observaciones }}
+                                        </td>
+
+                                        <td class="px-2 py-3 w-full text-gray-800 text-sm">
+                                            {{ $incidencia->creadoPor->name }} <br>
+                                            {{ $incidencia->created_at }}
+                                        </td>
+
+                                    </tr>
+
+                                @endforeach
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+                <h4 class="font-semibold tracking-wider mb-3">Nueva Incidencia</h4>
+
+                <div class="flex flex-col md:flex-row justify-between md:space-x-3 mb-5">
+
+                    <div class="flex-auto ">
+
+                        <div>
+
+                            <Label>Tipo</Label>
+                        </div>
+
+                        <div>
+
+                            <select class="bg-white rounded text-sm w-full" wire:model.defer="incidenciaTipo">
+
+                                <option value="" selected>Seleccione una opción</option>
+
+                                @foreach ($tipos as $tipo)
+
+                                    <option value="{{ $tipo }}" selected>{{ $tipo }}</option>
+
+                                @endforeach
+
+                            </select>
+
+                        </div>
+
+                        <div>
+
+                            @error('incidenciaTipo') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="flex flex-col md:flex-row justify-between md:space-x-3 mb-5">
+
+                    <div class="flex-auto ">
+
+                        <div>
+
+                            <Label>Observaciones</Label>
+
+                        </div>
+
+                        <div>
+
+                           <textarea class="bg-white rounded text-sm w-full" wire:model.defer="incidenciaObservaciones" ></textarea>
+
+                        </div>
+
+                        <div>
+
+                            @error('incidenciaObservaciones') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
+
+                        </div>
+
+                    </div>
+
+                 </div>
+
+            @endif
+
+        </x-slot>
+
+        <x-slot name="footer">
+
+            <div class="float-righ">
+
+                <button
+                    wire:click="crearIncidencia"
+                    wire:loading.attr="disabled"
+                    wire:target="crearIncidencia"
+                    class="bg-blue-400 text-white hover:shadow-lg font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-blue-700 flaot-left mr-1 focus:outline-none">
+                    Guardar
+                </button>
+
+                <button
+                    wire:click="resetearTodo"
+                    wire:loading.attr="disabled"
+                    wire:target="resetearTodo"
+                    type="button"
+                    class="bg-red-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-red-700 flaot-left focus:outline-none">
+                    Cerrar
+                </button>
+
+            </div>
+
+        </x-slot>
+
+    </x-jet-dialog-modal>
 
 </div>

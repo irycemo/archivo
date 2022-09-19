@@ -44,6 +44,22 @@ return [
             'throw' => false,
         ],
 
+        'pdfs_catastro' => [
+            'driver' => 'local',
+            'root' => storage_path('app/pdfs_catastro'),
+            'url' => env('APP_URL').'/pdfs_catastro',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
+        'pdfs_rpp' => [
+            'driver' => 'local',
+            'root' => storage_path('app/pdfs_rpp'),
+            'url' => env('APP_URL').'/pdfs_rpp',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
@@ -71,6 +87,8 @@ return [
 
     'links' => [
         public_path('storage') => storage_path('app/public'),
+        public_path('pdfs_catastro') => storage_path('app/pdfs_catastro'),
+        public_path('pdfs_rpp') => storage_path('app/pdfs_rpp'),
     ],
 
 ];

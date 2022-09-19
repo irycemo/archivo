@@ -15,6 +15,6 @@ class IncidenceSeeder extends Seeder
      */
     public function run()
     {
-        Incidence::factory(1000)->create();
+        Incidence::factory(500)->create();
     }
 }

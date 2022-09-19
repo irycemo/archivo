@@ -2,10 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\RppArchivoSolicitud;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
+use App\Observers\RppArchivoSolicitado;
+use App\Models\CatastroArchivoSolicitud;
+use App\Observers\CatastroArchivoSolicitado;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -27,7 +31,8 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        CatastroArchivoSolicitud::observe(CatastroArchivoSolicitado::class);
+        RppArchivoSolicitud::observe(RppArchivoSolicitado::class);
     }
 
     /**

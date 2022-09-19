@@ -15,11 +15,9 @@ return new class extends Migration
     {
         Schema::create('solicituds', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('tiempo');
+            $table->unsignedInteger('numero')->unique();
+            $table->date('tiempo');
             $table->string('estado');
-            $table->timestamp('entregado_en');
-            $table->timestamp('regresado_en');
-            $table->foreignId('surtidor')->nullable()->references('id')->on('users');
             $table->foreignId('creado_por')->nullable()->references('id')->on('users');
             $table->foreignId('actualizado_por')->nullable()->references('id')->on('users');
             $table->string('ubicacion');
