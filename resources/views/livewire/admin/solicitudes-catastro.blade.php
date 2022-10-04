@@ -404,7 +404,7 @@
 
         <x-slot name="content">
 
-            <h4 class="font-bold tracking-wider">Busqueda de tomos</h4>
+            <h4 class="font-bold tracking-wider">Busqueda de archivos</h4>
 
             <div class="flex flex-col md:flex-row justify-between md:space-x-3 mb-5">
 
@@ -502,11 +502,11 @@
 
                 </div>
 
-                <div class="flex-auto ">
+                <div class="flex-auto md:w-3/4">
 
                     <div>
 
-                        <Label>Registro</Label>
+                        <Label>Predio</Label>
                     </div>
 
                     <div class="flex space-x-2 items-center">
@@ -604,7 +604,7 @@
 
                         <div>
 
-                            <Label>Registro</Label>
+                            <Label>Predio</Label>
                         </div>
 
                         <div>

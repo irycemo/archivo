@@ -68,4 +68,14 @@ class Constantes{
         'Cancelaciones	'
     ];
 
+    const INCIDENCIAS = [
+        'No existe en el sistema',
+        'Cambio de localidad a',
+        'Proviene de la cuenta predial',
+        'No hay expediente',
+        'Solo hay tarjeta',
+        'Expediente incompleto',
+        'Predio ignorado '
+    ];
+
 }

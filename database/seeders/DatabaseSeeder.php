@@ -19,8 +19,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(RolesSeeder::class);
         $this->call(UsersSeeder::class);
-        $this->call(CatastroArchivoSeeder::class);
+        /* $this->call(CatastroArchivoSeeder::class);
         $this->call(RppArchivoSeeder::class);
-        $this->call(IncidenceSeeder::class);
+        $this->call(IncidenceSeeder::class); */
     }
 }

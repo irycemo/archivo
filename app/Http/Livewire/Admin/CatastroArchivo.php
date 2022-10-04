@@ -24,8 +24,8 @@ class CatastroArchivo extends Component
     public $oficina = 101;
     public $tipo;
     public $registro;
-    public $folio;
-    public $tarjeta;
+    public $folio = 0;
+    public $tarjeta = 0;
     public $archivoPDF;
     public $incidencias;
     public $incidenciaTipo;
@@ -92,6 +92,13 @@ class CatastroArchivo extends Component
     public function crear(){
 
         $this->validate();
+
+        if(cArchivo::where('localidad', $this->localidad)->where('oficina', $this->oficina)->where('tipo', $this->tipo)->where('registro', $this->registro)->first()){
+
+            $this->dispatchBrowserEvent('mostrarMensaje', ['error', "La cuenta ya se encuentra regsitrada."]);
+
+            return;
+        }
 
         try {
 
@@ -212,7 +219,7 @@ class CatastroArchivo extends Component
             $this->dispatchBrowserEvent('mostrarMensaje', ['success', "El archivo se eliminó con éxito."]);
 
         } catch (\Throwable $th) {
-            dd($th);
+
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
             $this->resetearTodo();
 
@@ -257,7 +264,7 @@ class CatastroArchivo extends Component
     public function render()
     {
 
-        $tipos = Constantes::AREAS;
+        $tipos = Constantes::INCIDENCIAS;
 
         $archivos = cArchivo::with('archivo', 'creadoPor', 'actualizadoPor')
                                 ->where('estado', 'LIKE', '%' . $this->search . '%')

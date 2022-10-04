@@ -146,7 +146,7 @@ class ReportesRpp extends Component
     public function render()
     {
 
-        $secciones = Constantes::SECCIONES;
+        $secciones = Constantes::INCIDENCIAS;
 
         $incidencias = Constantes::LOCALIDADES;
 

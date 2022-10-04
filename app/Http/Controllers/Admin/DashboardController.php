@@ -82,9 +82,10 @@ class DashboardController extends Controller
             $solicitados = CatastroArchivo::where('estado', 'solicitado')->whereMonth('created_at', Carbon::now()->month)->count();
             $ocupados = CatastroArchivo::where('estado', 'ocupado')->whereMonth('created_at', Carbon::now()->month)->count();
             $incidencias = Incidence::whereHas('creadoPor', function($q){
-                                                                            return $q->where('localidad', 'Catastro');
-                                                                        })
-                                    ->whereMonth('created_at', Carbon::now()->month)->count();
+                                                                return $q->where('localidad', 'Catastro');
+                                                            })
+                                    ->whereMonth('created_at', Carbon::now()->month)
+                                    ->count();
             $archivosDigitalizados = File::whereHas('creadoPor', function($q){
                                                                             return $q->where('localidad', 'Catastro');
                                                                         })

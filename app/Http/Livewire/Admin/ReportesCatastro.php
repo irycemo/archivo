@@ -6,13 +6,17 @@ use App\Models\File;
 use Livewire\Component;
 use App\Http\Constantes;
 use App\Models\Incidence;
+use Livewire\WithPagination;
 use App\Models\CatastroArchivo;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ArchivoCatastroExport;
 use App\Exports\IncidenciasCatastroExport;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ReportesCatastro extends Component
 {
+
+    use WithPagination;
 
     public $area;
     public $fecha1;
@@ -84,19 +88,32 @@ class ReportesCatastro extends Component
         }
     }
 
+    public function getArchivosFiltradosProperty(): LengthAwarePaginator{
+
+        return CatastroArchivo::with('creadoPor', 'actualizadoPor')
+                    ->when (isset($this->archivoEstado) && $this->archivoEstado != "", function($q){
+                        return $q->where('estado', $this->archivoEstado);
+                    })
+                    ->when (isset($this->archivoTarjeta) && $this->archivoTarjeta != "", function($q){
+                        return $q->where('tarjeta', $this->archivoTarjeta);
+                    })
+                    ->whereBetween('created_at', [$this->fecha1, $this->fecha2])
+                    ->paginate(50);
+    }
+
     public function filtrarArchivos(){
 
         $this->validate();
 
         $this->archivos_filtrados = CatastroArchivo::with('creadoPor', 'actualizadoPor')
-                                                        ->when (isset($this->archivoEstado) && $this->archivoEstado != "", function($q){
-                                                            return $q->where('estado', $this->archivoEstado);
-                                                        })
-                                                        ->when (isset($this->archivoTarjeta) && $this->archivoTarjeta != "", function($q){
-                                                            return $q->where('tarjeta', $this->archivoTarjeta);
-                                                        })
-                                                        ->whereBetween('created_at', [$this->fecha1, $this->fecha2])
-                                                        ->get();
+                                        ->when (isset($this->archivoEstado) && $this->archivoEstado != "", function($q){
+                                            return $q->where('estado', $this->archivoEstado);
+                                        })
+                                        ->when (isset($this->archivoTarjeta) && $this->archivoTarjeta != "", function($q){
+                                            return $q->where('tarjeta', $this->archivoTarjeta);
+                                        })
+                                        ->whereBetween('created_at', [$this->fecha1, $this->fecha2])
+                                        ->take(100)->get();
 
     }
 
@@ -138,7 +155,7 @@ class ReportesCatastro extends Component
     public function render()
     {
 
-        $incidencias = Constantes::LOCALIDADES;
+        $incidencias = Constantes::INCIDENCIAS;
 
         return view('livewire.admin.reportes-catastro', compact('incidencias'))->extends('layouts.admin');
     }

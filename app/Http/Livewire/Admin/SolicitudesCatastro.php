@@ -23,7 +23,7 @@ class SolicitudesCatastro extends Component
     public $tomo;
     public $archivo;
     public $empleado;
-    public $empleados;
+    public $empleados = [];
     public $solicitud;
     public $modalVer = false;
 
@@ -99,7 +99,8 @@ class SolicitudesCatastro extends Component
                                             })
                                             ->firstOrFail();
 
-            $sgc = Http::acceptJson()->get('http://10.0.253.223:8095/sgcpredio.asmx/sgc_predio?tipo=1&locl=1&ofna=101&tpre=1&nreg=257113')->collect();
+            $sgc = Http::acceptJson()->get('http://10.0.253.223:8095/sgcpredio.asmx/sgc_predio?tipo=1&locl='. $this->localidad .'&ofna=101&tpre='. $this->tipo . '&nreg='. $this->registro)->collect();
+
             $a = json_decode($sgc);
 
             if($a->status == "1"){

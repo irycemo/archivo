@@ -80,6 +80,13 @@ class RppArchivos extends Component
 
         $this->validate();
 
+        if(RppArchivo::where('tomo', $this->tomo)->where('seccion', $this->seccion)->where('distrito', $this->distrito)->where('tomo_bis', $this->tomo_bis)->first()){
+
+            $this->dispatchBrowserEvent('mostrarMensaje', ['error', "La cuenta ya se encuentra regsitrada."]);
+
+            return;
+        }
+
         try {
 
             $archivo = RppArchivo::create([
@@ -237,7 +244,7 @@ class RppArchivos extends Component
 
         $secciones = Constantes::SECCIONES;
 
-        $tipos = Constantes::AREAS;
+        $tipos = Constantes::INCIDENCIAS;
 
         $archivos = RppArchivo::with('archivo', 'creadoPor', 'actualizadoPor')
                                 ->where('estado', 'LIKE', '%' . $this->search . '%')

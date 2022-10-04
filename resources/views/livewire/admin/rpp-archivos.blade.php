@@ -325,7 +325,7 @@
 
                                 @if($archivo->archivo)
 
-                                    <a href="{{ Storage::disk('pdfs_rpp')->url($archivo->archivo->url)}}" class="bg-red-400 hover:shadow-lg text-white text-xs  px-3 py-1 rounded-full hover:bg-red-700 focus:outline-none mr-2 md:mr-0">PDF</a>
+                                    <a href="{{ Storage::disk('pdfs_rpp')->url($archivo->archivo->url)}}" class="bg-red-400 hover:shadow-lg text-white text-xs  px-3 py-1 rounded-full hover:bg-red-700 focus:outline-none mr-2 md:mr-0"  target="_blank">PDF</a>
 
                                 @else
 

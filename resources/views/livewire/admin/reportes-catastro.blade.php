@@ -428,6 +428,18 @@
 
                     </tbody>
 
+                    {{-- <tfoot class="border-gray-300 bg-gray-50">
+
+                        <tr>
+
+                            <td colspan="15" class="py-2 px-5">
+                                {{ $archivos_filtrados->links()}}
+                            </td>
+
+                        </tr>
+
+                    </tfoot> --}}
+
                 </table>
 
                 <div class="h-full w-full rounded-lg bg-gray-200 bg-opacity-75 absolute top-0 left-0" wire:loading wire:target="permisos_filtrados">
