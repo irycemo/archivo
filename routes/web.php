@@ -1,7 +1,6 @@
 <?php
 
-
-
+use App\Http\Controllers\Admin\CatastroSolicitudesController;
 use App\Http\Livewire\Admin\Roles;
 use App\Http\Livewire\Admin\Permisos;
 use App\Http\Livewire\Admin\Usuarios;
@@ -50,6 +49,7 @@ Route::group(['middleware' => ['auth', 'is.active']], function(){
     Route::get('rpp_solicitudes', SolicitudesRpp::class)->name('rpp_solicitudes');
 
     Route::get('catastro_solicitudes', SolicitudesCatastro::class)->name('catastro_solicitudes');
+    Route::get('catastro_solicitudes/lista/{solicitud}', [CatastroSolicitudesController::class, 'imprimirLista'])->name('solicitudes.lista');
 
     Route::get('distribuidor_rpp', DistribuidorRpp::class)->name('distribuidor_rpp');
 

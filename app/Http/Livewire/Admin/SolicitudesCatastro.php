@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Admin;
 
+use App\Models\User;
 use Livewire\Component;
 use App\Http\Constantes;
 use App\Models\Solicitud;
@@ -317,10 +318,50 @@ class SolicitudesCatastro extends Component
 
     }
 
+    public function recibirArchivo($id){
+
+        try {
+
+            $archivoSolicitado = CatastroArchivoSolicitud::find($id);
+
+            $archivoSolicitado->update([
+                'recibido_por' => auth()->user()->id,
+                'regresado_en' => now()
+            ]);
+
+            $archivoSolicitado->archivo->update([
+                'estado' => 'disponible'
+            ]);
+
+            $this->dispatchBrowserEvent('mostrarMensaje', ['success', "Se actualizó la información con éxito."]);
+
+            $this->resetearTodo();
+
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
+        }
+
+    }
+
+    public function imprimirLista(){
+        $this->dispatchBrowserEvent('imprimir_lista', ['solicitud' => $this->solicitud->id]);
+    }
+
     public function mount(){
 
         if(auth()->user()->hasRole('Solicitador'))
             $this->empleados = Http::acceptJson()->get('http://127.0.0.1:8000/api/empleados_presentes/' . rawurlencode(auth()->user()->area))->collect();
+
+            $this->empleados = [
+                0 => [
+                    'id' => 1,
+                    'nombre' => 'Prueba 1'
+                ],
+                1 => [
+                    'id' => 2,
+                    'nombre' => 'Prueba 2'
+                ]
+            ];
 
     }
 
@@ -330,12 +371,19 @@ class SolicitudesCatastro extends Component
 
         if(auth()->user()->hasRole('Administrador')){
 
-            $solicitudes = Solicitud::with('creadoPor', 'actualizadoPor')
+            $solicitudes = Solicitud::with('creadoPor', 'actualizadoPor','archivosCatastroSolicitados')
                                     ->withCount('archivosRppSolicitados', 'archivosCatastroSolicitados')
                                     ->where('ubicacion', 'Catastro')
                                     ->where(function($q){
                                         return $q->where('estado', 'LIKE', '%' . $this->search . '%')
-                                                    ->orWhere('numero', 'LIKE', '%' . $this->search . '%');
+                                                    ->orWhere('numero', 'LIKE', '%' . $this->search . '%')
+                                                    ->orWhere(function($q){
+                                                        return $q->whereHas('archivosCatastroSolicitados', function($q){
+                                                            return $q->whereHas('archivo', function($q){
+                                                                $q->where('registro', 'LIKE', '%' . $this->search . '%');
+                                                            });
+                                                        });
+                                                    });
                                     })
                                     ->orderBy($this->sort, $this->direction)
                                     ->paginate($this->pagination);
@@ -343,24 +391,38 @@ class SolicitudesCatastro extends Component
         }
         elseif(auth()->user()->hasRole('Solicitante')){
 
-            $solicitudes = Solicitud::with('creadoPor', 'actualizadoPor')
+            $solicitudes = Solicitud::with('creadoPor', 'actualizadoPor','archivosCatastroSolicitados')
                                     ->withCount('archivosRppSolicitados', 'archivosCatastroSolicitados')
                                     ->where('ubicacion', 'Catastro')
                                     ->where('creado_por', auth()->user()->id)
                                     ->where(function($q){
                                         return $q->where('estado', 'LIKE', '%' . $this->search . '%')
-                                                    ->orWhere('numero', 'LIKE', '%' . $this->search . '%');
+                                                    ->orWhere('numero', 'LIKE', '%' . $this->search . '%')
+                                                    ->orWhere(function($q){
+                                                        return $q->whereHas('archivosCatastroSolicitados', function($q){
+                                                            return $q->whereHas('archivo', function($q){
+                                                                $q->where('registro', 'LIKE', '%' . $this->search . '%');
+                                                            });
+                                                        });
+                                                    });
                                     })
                                     ->orderBy($this->sort, $this->direction)
                                     ->paginate($this->pagination);
 
         }else{
-            $solicitudes = Solicitud::with('creadoPor', 'actualizadoPor')
+            $solicitudes = Solicitud::with('creadoPor', 'actualizadoPor','archivosCatastroSolicitados')
                                     ->withCount('archivosRppSolicitados', 'archivosCatastroSolicitados')
                                     ->where('ubicacion', 'Catastro')
                                     ->where(function($q){
                                         return $q->where('estado', 'LIKE', '%' . $this->search . '%')
-                                                    ->orWhere('numero', 'LIKE', '%' . $this->search . '%');
+                                                    ->orWhere('numero', 'LIKE', '%' . $this->search . '%')
+                                                    ->orWhere(function($q){
+                                                        return $q->whereHas('archivosCatastroSolicitados', function($q){
+                                                            return $q->whereHas('archivo', function($q){
+                                                                $q->where('registro', 'LIKE', '%' . $this->search . '%');
+                                                            });
+                                                        });
+                                                    });
                                     })
                                     ->orderBy($this->sort, $this->direction)
                                     ->paginate($this->pagination);

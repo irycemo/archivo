@@ -1,4 +1,4 @@
-<div class="">
+<div class="" wire:poll.300s>
 
     <div class="mb-5">
 
@@ -235,7 +235,7 @@
 
                             </td>
 
-                            <td class="px-3 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
+                            <td class="px-3 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:border-0 border border-b block lg:table-cell relative lg:static">
 
                                 <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Estado</span>
 
@@ -287,25 +287,29 @@
 
                                 <div class="flex justify-center lg:justify-start">
 
-                                    @can('Ver solicitud catastro')
+                                    @if ($solicitudd->estado != 'nueva')
 
-                                        <button
-                                            wire:click="abrirModalVer({{$solicitudd->id}})"
-                                            wire:loading.attr="disabled"
-                                            wire:target="abrirModalVer({{$solicitudd->id}})"
-                                            class="bg-green-400 hover:shadow-lg text-white text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-green-700 flex focus:outline-none"
-                                        >
+                                        @can('Ver solicitud catastro')
 
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
+                                            <button
+                                                wire:click="abrirModalVer({{$solicitudd->id}})"
+                                                wire:loading.attr="disabled"
+                                                wire:target="abrirModalVer({{$solicitudd->id}})"
+                                                class="bg-green-400 hover:shadow-lg text-white text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-green-700 flex focus:outline-none"
+                                            >
 
-                                            <p>Ver</p>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
 
-                                        </button>
+                                                <p>Ver</p>
 
-                                    @endcan
+                                            </button>
+
+                                        @endcan
+
+                                    @endif
 
                                     @can('Editar solicitud catastro')
 
@@ -739,13 +743,21 @@
 
                 @elseif($editar)
 
-                    <button
-                        wire:click="resetearTodo"
-                        wire:loading.attr="disabled"
-                        wire:target="resetearTodo"
-                        class="bg-blue-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-blue-700 flaot-left mr-1 focus:outline-none">
-                        Actualizar
-                    </button>
+                    @if($solicitud->estado == 'nueva')
+
+                        @can('Aceptar solicitud catastro')
+
+                            <button
+                                wire:click="aceptarRechazar({{ $solicitud->id }} , 'aceptar')"
+                                wire:loading.attr="disabled"
+                                wire:target="aceptarRechazar({{ $solicitud->id }} , 'aceptar')"
+                                class="bg-green-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-green-700 flaot-left mr-1 focus:outline-none">
+                                Aceptar
+                            </button>
+
+                        @endcan
+
+                    @endif
 
                 @endif
 
@@ -819,6 +831,9 @@
                                 <th class="px-2 py-3">Asignado A</th>
                                 <th class="px-2 py-3">Entregado el</th>
                                 <th class="px-2 py-3">Regresado el</th>
+                                @if($solicitud->estado == "entregada")
+                                    <th></th>
+                                @endif
                             </tr>
 
                         </thead>
@@ -829,13 +844,13 @@
 
                                 <tr class="text-sm text-gray-500 bg-white">
 
-                                    <td class="px-2 py-3 w-full text-gray-800 text-sm">
+                                    <td class="px-2 py-3 w-full text-gray-800 text-xs">
                                         {{ $archivoSolicitado->archivo->tomo ? $archivoSolicitado->archivo->tomo . ' /' : ''}} {{ $archivoSolicitado->archivo->localidad }}-{{ $archivoSolicitado->archivo->oficina }}-{{ $archivoSolicitado->archivo->tipo }}-{{ $archivoSolicitado->archivo->registro }}
                                     </td>
-                                    <td class="px-2 py-3 w-full text-gray-800 text-sm">
+                                    <td class="px-2 py-3 w-full text-gray-800 text-xs">
                                         {{ $archivoSolicitado->asignado_a }}
                                     </td>
-                                    <td class="px-2 py-3 w-full text-gray-800 text-sm">
+                                    <td class="px-2 py-3 w-full text-gray-800 text-xs">
                                         @if($archivoSolicitado->entregadoPor != null)
 
                                             <span class="font-semibold">Entregado por: {{$archivoSolicitado->entregadoPor->name}}</span> <br>
@@ -843,7 +858,7 @@
                                         @endif
                                         {{ $archivoSolicitado->entregado_en }}
                                     </td>
-                                    <td class="px-2 py-3 w-full text-gray-800 text-sm">
+                                    <td class="px-2 py-3 w-full text-gray-800 text-xs">
                                         @if($archivoSolicitado->recibidoPor != null)
 
                                             <span class="font-semibold">Recibido por: {{$archivoSolicitado->recibidoPor->name}}</span> <br>
@@ -851,6 +866,18 @@
                                         @endif
                                         {{ $archivoSolicitado->regresado_en }}
                                     </td>
+
+                                    @if($solicitud->estado == "entregada" && $archivoSolicitado->recibido_por == null)
+                                        <td>
+                                            <button
+                                                wire:click="recibirArchivo({{ $archivoSolicitado->id }})"
+                                                wire:loading.attr="disabled"
+                                                wire:target="recibirArchivo({{ $archivoSolicitado->id }})"
+                                                class="bg-blue-400 text-white hover:shadow-lg font-bold px-4 py-2 rounded-full text-xs mb-2 hover:bg-blue-700 flaot-left mr-1 focus:outline-none">
+                                                Recibir
+                                            </button>
+                                        </td>
+                                    @endif
 
                                 </tr>
 
@@ -872,18 +899,6 @@
 
                 <div class="float-righ">
 
-                    @can('Aceptar solicitud catastro')
-
-                        <button
-                            wire:click="aceptarRechazar({{ $solicitud->id }} , 'aceptar')"
-                            wire:loading.attr="disabled"
-                            wire:target="aceptarRechazar({{ $solicitud->id }} , 'aceptar')"
-                            class="bg-green-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-green-700 flaot-left mr-1 focus:outline-none">
-                            Aceptar
-                        </button>
-
-                    @endcan
-
                     @can('Rechazar solicitud catastro')
 
                         <button
@@ -902,6 +917,14 @@
             @elseif($solicitud && $solicitud->estado == 'aceptada')
 
                 @can('Entregar solicitud catastro')
+
+                    <button
+                        wire:click="imprimirLista"
+                        wire:loading.attr="disabled"
+                        wire:target="imprimirLista"
+                        class="bg-gray-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-gray-700 flaot-left mr-1 focus:outline-none">
+                        Imprimir Lista
+                    </button>
 
                     <button
                         wire:click="entregarRecibir({{ $solicitud->id }} , 'entregar')"
@@ -940,6 +963,26 @@
         </x-slot>
 
     </x-jet-dialog-modal>
+
+    @push('scripts')
+
+        <script>
+
+            window.addEventListener('imprimir_lista', event => {
+
+                const solicitud = event.detail.solicitud;
+
+                var url = "{{ route('solicitudes.lista', '')}}" + "/" + solicitud;
+
+                window.open(url, '_blank');
+
+                window.location.href = "{{ route('catastro_solicitudes')}}";
+
+            });
+
+        </script>
+
+    @endpush
 
 </div>
 
