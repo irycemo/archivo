@@ -2,12 +2,14 @@
 
 namespace App\Http\Livewire\Admin;
 
-use App\Http\Constantes;
 use App\Models\File;
 use Livewire\Component;
+use App\Http\Constantes;
 use App\Models\Incidence;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Traits\ComponentesTrait;
 use Illuminate\Support\Facades\Storage;
 use App\Models\CatastroArchivo as cArchivo;
@@ -102,38 +104,44 @@ class CatastroArchivo extends Component
 
         try {
 
-            $archivo = cArchivo::create([
-                'estado' => 'disponible',
-                'tomo' => $this->tomo,
-                'localidad' => $this->localidad,
-                'oficina' => $this->oficina,
-                'tipo' => $this->tipo,
-                'registro' => $this->registro,
-                'folio' => $this->folio,
-                'tarjeta' => $this->tarjeta,
-                'creado_por' => auth()->user()->id
-            ]);
+            DB::transaction(function () {
 
-            if($this->archivoPDF){
-
-                $nombreArchivo = $this->archivoPDF->store('/', 'pdfs_catastro');
-
-                File::create([
-                    'url' => $nombreArchivo,
-                    'fileable_id' => $archivo->id,
-                    'fileable_type' => 'App\Models\CatastroArchivo',
+                $archivo = cArchivo::create([
+                    'estado' => 'disponible',
+                    'tomo' => $this->tomo,
+                    'localidad' => $this->localidad,
+                    'oficina' => $this->oficina,
+                    'tipo' => $this->tipo,
+                    'registro' => $this->registro,
+                    'folio' => $this->folio,
+                    'tarjeta' => $this->tarjeta,
                     'creado_por' => auth()->user()->id
                 ]);
 
-                $this->dispatchBrowserEvent('removeFiles');
+                if($this->archivoPDF){
 
-            }
+                    $nombreArchivo = $this->archivoPDF->store('/', 'pdfs_catastro');
 
-            $this->resetearTodo();
+                    File::create([
+                        'url' => $nombreArchivo,
+                        'fileable_id' => $archivo->id,
+                        'fileable_type' => 'App\Models\CatastroArchivo',
+                        'creado_por' => auth()->user()->id
+                    ]);
 
-            $this->dispatchBrowserEvent('mostrarMensaje', ['success', "El archivo se creó con éxito."]);
+                    $this->dispatchBrowserEvent('removeFiles');
+
+                }
+
+                $this->resetearTodo();
+
+                $this->dispatchBrowserEvent('mostrarMensaje', ['success', "El archivo se creó con éxito."]);
+
+            });
 
         } catch (\Throwable $th) {
+
+            Log::error("Error al crear archivo por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
             $this->resetearTodo();
 
@@ -147,50 +155,54 @@ class CatastroArchivo extends Component
 
         try{
 
-            $archivo = cArchivo::find($this->selected_id);
+            DB::transaction(function () {
 
-            $archivo->update([
-                'estado' => $this->estado,
-                'tomo' => $this->tomo,
-                'localidad' => $this->localidad,
-                'oficina' => $this->oficina,
-                'tipo' => $this->tipo,
-                'registro' => $this->registro,
-                'folio' => $this->folio,
-                'tarjeta' => $this->tarjeta,
-                'actualizado_por' => auth()->user()->id
-            ]);
+                $archivo = cArchivo::find($this->selected_id);
 
-            if($this->archivoPDF){
+                $archivo->update([
+                    'estado' => $this->estado,
+                    'tomo' => $this->tomo,
+                    'localidad' => $this->localidad,
+                    'oficina' => $this->oficina,
+                    'tipo' => $this->tipo,
+                    'registro' => $this->registro,
+                    'folio' => $this->folio,
+                    'tarjeta' => $this->tarjeta,
+                    'actualizado_por' => auth()->user()->id
+                ]);
 
-                if($archivo->archivo){
+                if($this->archivoPDF){
 
-                    Storage::disk('pdfs_catastro')->delete($archivo->archivo->url);
+                    if($archivo->archivo){
 
-                    File::destroy($archivo->archivo->id);
+                        Storage::disk('pdfs_catastro')->delete($archivo->archivo->url);
+
+                        File::destroy($archivo->archivo->id);
+
+                    }
+
+                    $nombreArchivo = $this->archivoPDF->store('/', 'pdfs_catastro');
+
+                    File::create([
+                        'url' => $nombreArchivo,
+                        'fileable_id' => $archivo->id,
+                        'fileable_type' => 'App\Models\CatastroArchivo',
+                        'creado_por' => auth()->user()->id
+                    ]);
+
+                    $this->dispatchBrowserEvent('removeFiles');
 
                 }
 
-                $nombreArchivo = $this->archivoPDF->store('/', 'pdfs_catastro');
 
-                File::create([
-                    'url' => $nombreArchivo,
-                    'fileable_id' => $archivo->id,
-                    'fileable_type' => 'App\Models\CatastroArchivo',
-                    'creado_por' => auth()->user()->id
-                ]);
+                $this->resetearTodo();
 
-                $this->dispatchBrowserEvent('removeFiles');
+                $this->dispatchBrowserEvent('mostrarMensaje', ['success', "El archivo se actualizó con éxito."]);
 
-            }
-
-
-            $this->resetearTodo();
-
-            $this->dispatchBrowserEvent('mostrarMensaje', ['success', "El archivo se actualizó con éxito."]);
+            });
 
         } catch (\Throwable $th) {
-            dd($th);
+            Log::error("Error al actualizar archivo por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
             $this->resetearTodo();
 
@@ -202,24 +214,40 @@ class CatastroArchivo extends Component
 
         try{
 
-            $archivo = cArchivo::with('archivo')->find($this->selected_id);
+            DB::transaction(function () {
 
-            if($archivo->archivo){
+                $archivo = cArchivo::with('archivo')->find($this->selected_id);
 
-                Storage::disk('pdfs_catastro')->delete($archivo->archivo->url);
+                if($archivo->archivo){
 
-                $archivo->archivo->delete();
+                    Storage::disk('pdfs_catastro')->delete($archivo->archivo->url);
 
-            }
+                    $archivo->archivo->delete();
 
-            $archivo->delete();
+                }
 
-            $this->resetearTodo();
+                $incidencias = Incidence::where('incidenceable_type', 'App\Models\CatastroArchivo')
+                                            ->where('incidenceable_id', $this->selected_id)
+                                            ->get();
 
-            $this->dispatchBrowserEvent('mostrarMensaje', ['success', "El archivo se eliminó con éxito."]);
+                if($incidencias->count() > 0){
+
+                    foreach ($incidencias as $incidencia) {
+                        $incidencia->delete();
+                    }
+
+                }
+
+                $archivo->delete();
+
+                $this->resetearTodo();
+
+                $this->dispatchBrowserEvent('mostrarMensaje', ['success', "El archivo se eliminó con éxito."]);
+
+            });
 
         } catch (\Throwable $th) {
-
+            Log::error("Error al borrar archivo por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
             $this->resetearTodo();
 
@@ -253,7 +281,8 @@ class CatastroArchivo extends Component
             $this->dispatchBrowserEvent('mostrarMensaje', ['success', "La incidencia se creó con éxito."]);
 
         } catch (\Throwable $th) {
-            dd($th);
+
+            Log::error("Error al crear incidencia por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
             $this->resetearTodo();
 
@@ -264,7 +293,7 @@ class CatastroArchivo extends Component
     public function render()
     {
 
-        $tipos = Constantes::INCIDENCIAS;
+        $tipos = collect(Constantes::INCIDENCIAS)->sort();
 
         $archivos = cArchivo::with('archivo', 'creadoPor', 'actualizadoPor')
                                 ->where('estado', 'LIKE', '%' . $this->search . '%')

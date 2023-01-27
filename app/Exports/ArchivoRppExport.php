@@ -19,9 +19,21 @@ use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 class ArchivoRppExport implements FromCollection,  WithProperties, WithDrawings, ShouldAutoSize, WithEvents, WithCustomStartCell, WithColumnWidths, WithHeadings, WithMapping
 {
 
-    public function __construct($coleccion)
+    public $archivoEstado;
+    public $bis;
+    public $seccion;
+    public $distrito;
+    public $fecha1;
+    public $fecha2;
+
+    public function __construct($archivoEstado, $bis, $seccion, $distrito, $fecha1, $fecha2)
     {
-        $this->coleccion = $coleccion;
+        $this->archivoEstado = $archivoEstado;
+        $this->bis = $bis;
+        $this->seccion = $seccion;
+        $this->distrito = $distrito;
+        $this->fecha1 = $fecha1;
+        $this->fecha2 = $fecha2;
     }
 
     /**
@@ -29,7 +41,22 @@ class ArchivoRppExport implements FromCollection,  WithProperties, WithDrawings,
     */
     public function collection()
     {
-        return $this->coleccion;
+        return RppArchivo::with('creadoPor', 'actualizadoPor')
+                            ->when (isset($this->archivoEstado) && $this->archivoEstado != "", function($q){
+                                return $q->where('estado', $this->archivoEstado);
+                            })
+                            ->when (isset($this->bis) && $this->bis != "", function($q){
+                                return $q->where('tomo_bis', $this->bis);
+                            })
+                            ->when (isset($this->seccion) && $this->seccion != "", function($q){
+                                return $q->where('seccion', $this->seccion);
+                            })
+                            ->when (isset($this->distrito) && $this->distrito != "", function($q){
+                                return $q->where('distrito', $this->distrito);
+                            })
+                            ->whereBetween('created_at', [$this->fecha1 . ' 00:00:00', $this->fecha2 . ' 23:59:59'])
+                            ->get();
+
     }
 
     public function drawings()
@@ -69,8 +96,8 @@ class ArchivoRppExport implements FromCollection,  WithProperties, WithDrawings,
             $archivo->tomo_bis ? $archivo->tomo_bis : 'N/A',
             $archivo->seccion,
             $archivo->distrito,
-            $archivo->createdBy ? $archivo->createdBy->name : 'N/A',
-            $archivo->updatedBy ? $archivo->updatedBy->name : 'N/A',
+            $archivo->creado_por ? $archivo->creadoPor->name : 'N/A',
+            $archivo->actualizado_por ? $archivo->actualizadoPor->name : 'N/A',
             $archivo->created_at,
             $archivo->updated_at,
         ];

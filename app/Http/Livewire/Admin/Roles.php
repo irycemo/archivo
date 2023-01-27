@@ -2,10 +2,11 @@
 
 namespace App\Http\Livewire\Admin;
 
-use App\Http\Traits\ComponentesTrait;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Log;
+use App\Http\Traits\ComponentesTrait;
 use Spatie\Permission\Models\Permission;
 
 class Roles extends Component
@@ -62,8 +63,9 @@ class Roles extends Component
             $this->dispatchBrowserEvent('mostrarMensaje', ['success', "El role se creó con éxito."]);
 
         } catch (\Throwable $th) {
+
+            Log::error("Error al crear rol por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
-            $this->resetearTodo();
             $this->resetearTodo();
         }
 
@@ -88,6 +90,7 @@ class Roles extends Component
 
         } catch (\Throwable $th) {
 
+            Log::error("Error al actualizar rol por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
             $this->resetearTodo();
         }
@@ -107,8 +110,9 @@ class Roles extends Component
             $this->dispatchBrowserEvent('mostrarMensaje', ['success', "El role se elimino con exito."]);
 
         } catch (\Throwable $th) {
+
+            Log::error("Error al borrar rol por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
-            $this->resetearTodo();
             $this->resetearTodo();
         }
 
@@ -117,14 +121,14 @@ class Roles extends Component
     public function render()
     {
 
-        $roles = Role::with('permissions')->where('name', 'LIKE', '%' . $this->search . '%')
-                            ->paginate($this->pagination);
+        $roles = Role::with('permissions', 'creadoPor', 'actualizadoPor')
+                        ->where('name', 'LIKE', '%' . $this->search . '%')
+                        ->paginate($this->pagination);
 
-        $permisos = Permission::all();
-
-        $permisos = $permisos->groupBy(function($permiso) {
-            return $permiso->area;
-        })->all();
+        $permisos = Permission::all()
+                                ->groupBy(function($permiso) {
+                                    return $permiso->area;
+                                })->all();
 
         return view('livewire.admin.roles', compact('roles', 'permisos'))->extends('layouts.admin');
     }

@@ -2,7 +2,7 @@
 
     <div class="mb-5">
 
-        <h1 class="titulo-seccion text-3xl font-thin text-gray-500 mb-3">Distribución</h1>
+        <h1 class="text-3xl tracking-widest py-3 px-6 text-gray-600 rounded-xl border-b-2 border-gray-500 font-thin mb-6  bg-white">Distribución</h1>
 
         <div class="flex justify-between">
 
@@ -239,7 +239,9 @@
 
                         </th>
 
-                        <th class="px-3 py-3 hidden lg:table-cell">Acciones</th>
+                        @if(!auth()->user()->hasRole('Surtidor'))
+                            <th class="px-3 py-3 hidden lg:table-cell">Acciones</th>
+                        @endif
 
                     </tr>
 
@@ -355,36 +357,40 @@
 
                             </td>
 
-                            <td class="px-3 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b lg:table-cell relative lg:static">
+                            @if(!auth()->user()->hasRole('Surtidor'))
 
-                                <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Acciones</span>
+                                <td class="px-3 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b lg:table-cell relative lg:static">
 
-                                <div class="flex justify-center lg:justify-start">
+                                    <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Acciones</span>
 
-                                    @can('Distribución Catastro')
+                                    <div class="flex justify-center lg:justify-start">
 
-                                        <button
-                                            wire:click="abrirModal({{$archivo->id}})"
-                                            wire:loading.attr="disabled"
-                                            wire:target="abrirModal({{$archivo->id}})"
-                                            class="bg-blue-400 hover:shadow-lg text-white text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-blue-700 flex focus:outline-none"
-                                        >
+                                        @can('Distribución Catastro')
 
-
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
-
-                                            <p>Asignar</p>
-
-                                        </button>
-
-                                    @endcan
+                                            <button
+                                                wire:click="abrirModal({{$archivo->id}})"
+                                                wire:loading.attr="disabled"
+                                                wire:target="abrirModal({{$archivo->id}})"
+                                                class="bg-blue-400 hover:shadow-lg text-white text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-blue-700 flex focus:outline-none"
+                                            >
 
 
-                                </div>
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
 
-                            </td>
+                                                <p>Asignar</p>
+
+                                            </button>
+
+                                        @endcan
+
+
+                                    </div>
+
+                                </td>
+
+                            @endif
 
                         </tr>
 
@@ -396,7 +402,7 @@
 
                     <tr>
 
-                        <td colspan="8" class="py-2 px-5">
+                        <td colspan="11" class="py-2 px-5">
                             {{ $archivosSolicitados->links()}}
                         </td>
 
@@ -478,6 +484,7 @@
                     wire:loading.attr="disabled"
                     wire:target="asignar"
                     class="bg-blue-400 text-white hover:shadow-lg font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-blue-700 flaot-left mr-1 focus:outline-none">
+                    <img wire:loading wire:target="asignar" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
                     Asignar
                 </button>
 

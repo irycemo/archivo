@@ -2,7 +2,7 @@
 
     <div class="mb-5">
 
-        <h1 class="titulo-seccion text-3xl font-thin text-gray-500 mb-3">Solicitudes</h1>
+        <h1 class="text-3xl tracking-widest py-3 px-6 text-gray-600 rounded-xl border-b-2 border-gray-500 font-thin mb-6  bg-white">Solicitudes</h1>
 
         <div class="flex justify-between">
 
@@ -23,7 +23,10 @@
 
             @can('Crear solicitud catastro')
 
-                <button wire:click="abrirModalCrear" class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 float-right mb-5 text-sm py-2 px-4 text-white rounded-full focus:outline-none hidden md:block">Agregar nueva Solicitud</button>
+                <button wire:click="abrirModalCrear" class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 float-right mb-5 text-sm py-2 px-4 text-white rounded-full focus:outline-none hidden md:block">
+                    <img wire:loading wire:target="abrirModalCrear" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
+                    Agregar nueva solicitud
+                </button>
 
                 <button wire:click="abrirModalCrear" class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 float-right mb-5 text-sm py-2 px-4 text-white rounded-full focus:outline-none md:hidden">+</button>
 
@@ -223,7 +226,7 @@
 
                                 <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Fecha de devolución</span>
 
-                                {{ $solicitudd->tiempo }}
+                                {{ \Carbon\Carbon::createFromFormat('Y-m-d', $solicitudd->tiempo)->format('d-m-Y') }}
 
                             </td>
 
@@ -738,6 +741,7 @@
                         wire:loading.attr="disabled"
                         wire:target="resetearTodo"
                         class="bg-blue-400 text-white hover:shadow-lg font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-blue-700 flaot-left mr-1 focus:outline-none">
+                        <img wire:loading wire:target="resetearTodo" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
                         Finalizar solicitud
                     </button>
 
@@ -752,6 +756,7 @@
                                 wire:loading.attr="disabled"
                                 wire:target="aceptarRechazar({{ $solicitud->id }} , 'aceptar')"
                                 class="bg-green-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-green-700 flaot-left mr-1 focus:outline-none">
+                                <img wire:loading wire:target="aceptarRechazar({{ $solicitud->id }} , 'aceptar')" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
                                 Aceptar
                             </button>
 
@@ -767,6 +772,7 @@
                     wire:target="resetearTodo"
                     type="button"
                     class="bg-red-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-red-700 flaot-left focus:outline-none">
+                    <img wire:loading wire:target="resetearTodo" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
                     Cerrar
                 </button>
 
@@ -907,6 +913,7 @@
                             wire:target="aceptarRechazar({{ $solicitud->id }},  'rechazar')"
                             type="button"
                             class="bg-red-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-red-700 flaot-left focus:outline-none">
+                            <img wire:loading wire:target="aceptarRechazar({{ $solicitud->id }},  'rechazar')" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
                             Rechazar
                         </button>
 
@@ -931,6 +938,7 @@
                         wire:loading.attr="disabled"
                         wire:target="entregarRecibir({{ $solicitud->id }} , 'entregar')"
                         class="bg-green-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-green-700 flaot-left mr-1 focus:outline-none">
+                        <img wire:loading wire:target="entregarRecibir({{ $solicitud->id }} , 'entregar')" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
                         Entregar
                     </button>
 
@@ -946,6 +954,7 @@
                     wire:target="entregarRecibir({{ $solicitud->id }},  'recibir')"
                     type="button"
                     class="bg-blue-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-blue-700 flaot-left focus:outline-none">
+                    <img wire:loading wire:target="entregarRecibir({{ $solicitud->id }},  'recibir')" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
                     Recibir
                 </button>
 
@@ -957,6 +966,7 @@
                 wire:target="resetearTodo"
                 type="button"
                 class="bg-red-400 hover:shadow-lg ml-2 text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-red-700 flaot-left focus:outline-none">
+                <img wire:loading wire:target="resetearTodo" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
                 Cerrar
             </button>
 

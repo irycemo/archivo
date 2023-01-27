@@ -9,6 +9,8 @@ use App\Models\Incidence;
 use App\Models\RppArchivo;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Traits\ComponentesTrait;
 use Illuminate\Support\Facades\Storage;
 
@@ -89,36 +91,41 @@ class RppArchivos extends Component
 
         try {
 
-            $archivo = RppArchivo::create([
-                'estado' => 'disponible',
-                'tomo' => $this->tomo,
-                'tomo_bis' => $this->tomo_bis,
-                'seccion' => $this->seccion,
-                'distrito' => $this->distrito,
-                'creado_por' => auth()->user()->id
-            ]);
+            DB::transaction(function () {
 
-            if($this->archivoPDF){
-
-                $nombreArchivo = $this->archivoPDF->store('/', 'pdfs_rpp');
-
-                File::create([
-                    'url' => $nombreArchivo,
-                    'fileable_id' => $archivo->id,
-                    'fileable_type' => 'App\Models\RppArchivo',
+                $archivo = RppArchivo::create([
+                    'estado' => 'disponible',
+                    'tomo' => $this->tomo,
+                    'tomo_bis' => $this->tomo_bis,
+                    'seccion' => $this->seccion,
+                    'distrito' => $this->distrito,
                     'creado_por' => auth()->user()->id
                 ]);
 
-                $this->dispatchBrowserEvent('removeFiles');
+                if($this->archivoPDF){
 
-            }
+                    $nombreArchivo = $this->archivoPDF->store('/', 'pdfs_rpp');
 
-            $this->resetearTodo();
+                    File::create([
+                        'url' => $nombreArchivo,
+                        'fileable_id' => $archivo->id,
+                        'fileable_type' => 'App\Models\RppArchivo',
+                        'creado_por' => auth()->user()->id
+                    ]);
 
-            $this->dispatchBrowserEvent('mostrarMensaje', ['success', "El archivo se creó con éxito."]);
+                    $this->dispatchBrowserEvent('removeFiles');
+
+                }
+
+                $this->resetearTodo();
+
+                $this->dispatchBrowserEvent('mostrarMensaje', ['success', "El archivo se creó con éxito."]);
+
+            });
 
         } catch (\Throwable $th) {
 
+            Log::error("Error al crear archivo por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
             $this->resetearTodo();
 
@@ -132,44 +139,49 @@ class RppArchivos extends Component
 
         try{
 
-            $archivo = RppArchivo::find($this->selected_id);
+            DB::transaction(function () {
 
-            $archivo->update([
-                'estado' => $this->estado,
-                'tomo' => $this->tomo,
-                'tomo_bis' => $this->tomo_bis,
-                'seccion' => $this->seccion,
-                'distrito' => $this->distrito,
-                'actualizado_por' => auth()->user()->id
-            ]);
+                $archivo = RppArchivo::find($this->selected_id);
 
-            if($this->archivoPDF){
-
-                if($archivo->archivo){
-                    Storage::disk('pdfs_rpp')->delete($archivo->archivo->url);
-
-                    File::destroy($archivo->archivo->id);
-                }
-
-                $nombreArchivo = $this->archivoPDF->store('/', 'pdfs_rpp');
-
-                File::create([
-                    'url' => $nombreArchivo,
-                    'fileable_id' => $archivo->id,
-                    'fileable_type' => 'App\Models\RppArchivo',
-                    'creado_por' => auth()->user()->id
+                $archivo->update([
+                    'estado' => $this->estado,
+                    'tomo' => $this->tomo,
+                    'tomo_bis' => $this->tomo_bis,
+                    'seccion' => $this->seccion,
+                    'distrito' => $this->distrito,
+                    'actualizado_por' => auth()->user()->id
                 ]);
 
-                $this->dispatchBrowserEvent('removeFiles');
+                if($this->archivoPDF){
 
-            }
+                    if($archivo->archivo){
+                        Storage::disk('pdfs_rpp')->delete($archivo->archivo->url);
 
-            $this->resetearTodo();
+                        File::destroy($archivo->archivo->id);
+                    }
 
-            $this->dispatchBrowserEvent('mostrarMensaje', ['success', "El archivo se actualizó con éxito."]);
+                    $nombreArchivo = $this->archivoPDF->store('/', 'pdfs_rpp');
+
+                    File::create([
+                        'url' => $nombreArchivo,
+                        'fileable_id' => $archivo->id,
+                        'fileable_type' => 'App\Models\RppArchivo',
+                        'creado_por' => auth()->user()->id
+                    ]);
+
+                    $this->dispatchBrowserEvent('removeFiles');
+
+                }
+
+                $this->resetearTodo();
+
+                $this->dispatchBrowserEvent('mostrarMensaje', ['success', "El archivo se actualizó con éxito."]);
+
+            });
 
         } catch (\Throwable $th) {
 
+            Log::error("Error al actualizar archivo por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
             $this->resetearTodo();
 
@@ -181,23 +193,43 @@ class RppArchivos extends Component
 
         try{
 
-            $archivo = RppArchivo::with('archivo')->find($this->selected_id);
+            DB::transaction(function () {
 
-            if($archivo->archivo){
+                $archivo = RppArchivo::with('archivo')->find($this->selected_id);
 
-                Storage::disk('pdfs_catastro')->delete($archivo->archivo->url);
+                if($archivo->archivo){
 
-                $archivo->archivo->delete();
+                    Storage::disk('pdfs_catastro')->delete($archivo->archivo->url);
 
-            }
+                    $archivo->archivo->delete();
 
-            $archivo->delete();
+                }
 
-            $this->resetearTodo();
+                $incidencias = Incidence::where('incidenceable_type', 'App\Models\RppArchivo')
+                                            ->where('incidenceable_id', $this->selected_id)
+                                            ->get();
 
-            $this->dispatchBrowserEvent('mostrarMensaje', ['success', "El archivo se eliminó con éxito."]);
+                if($incidencias->count() > 0){
+
+                    foreach ($incidencias as $incidencia) {
+
+                        $incidencia->delete();
+
+                    }
+
+                }
+
+                $archivo->delete();
+
+                $this->resetearTodo();
+
+                $this->dispatchBrowserEvent('mostrarMensaje', ['success', "El archivo se eliminó con éxito."]);
+
+            });
 
         } catch (\Throwable $th) {
+
+            Log::error("Error al borrar archivo por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
             $this->resetearTodo();
 
@@ -231,7 +263,8 @@ class RppArchivos extends Component
             $this->dispatchBrowserEvent('mostrarMensaje', ['success', "La incidencia se creó con éxito."]);
 
         } catch (\Throwable $th) {
-            dd($th);
+
+            Log::error("Error al crear incidencia por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
             $this->resetearTodo();
 
@@ -242,9 +275,9 @@ class RppArchivos extends Component
     public function render()
     {
 
-        $secciones = Constantes::SECCIONES;
+        $secciones = collect(Constantes::SECCIONES)->sort();
 
-        $tipos = Constantes::INCIDENCIAS;
+        $tipos = collect(Constantes::INCIDENCIAS)->sort();
 
         $archivos = RppArchivo::with('archivo', 'creadoPor', 'actualizadoPor')
                                 ->where('estado', 'LIKE', '%' . $this->search . '%')

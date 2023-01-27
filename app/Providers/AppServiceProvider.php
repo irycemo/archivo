@@ -4,8 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Opcodes\LogViewer\Facades\LogViewer;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,21 +25,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Model::preventLazyLoading(!app()->isProduction());
 
-        /* Collection::macro('paginate', function($perPage, $total = null, $page = null, $pageName = 'page') {
-            $page = $page ?: LengthAwarePaginator::resolveCurrentPage($pageName);
+        Model::shouldBeStrict();
 
-            return new LengthAwarePaginator(
-                $this->forPage($page, $perPage),
-                $total ?: $this->count(),
-                $perPage,
-                $page,
-                [
-                    'path' => LengthAwarePaginator::resolveCurrentPath(),
-                    'pageName' => $pageName,
-                ]
-            );
-        }); */
+        LogViewer::auth(function ($request) {
+            return auth()->user()->hasRole('Administrador');
+        });
+
     }
 }

@@ -18,9 +18,15 @@ use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 class IncidenciasRppExport implements FromCollection,  WithProperties, WithDrawings, ShouldAutoSize, WithEvents, WithCustomStartCell, WithColumnWidths, WithHeadings, WithMapping
 {
 
-    public function __construct($coleccion)
+    public $incidenciaTipo;
+    public $fecha1;
+    public $fecha2;
+
+    public function __construct($incidenciaTipo, $fecha1, $fecha2)
     {
-        $this->coleccion = $coleccion;
+        $this->incidenciaTipo = $incidenciaTipo;
+        $this->fecha1 = $fecha1;
+        $this->fecha2 = $fecha2;
     }
 
     /**
@@ -28,7 +34,13 @@ class IncidenciasRppExport implements FromCollection,  WithProperties, WithDrawi
     */
     public function collection()
     {
-        return $this->coleccion;
+        return Incidence::with('creadoPor', 'actualizadoPor', 'incidenceable')
+                            ->where('incidenceable_type', 'App\Models\RppArchivo')
+                            ->when (isset($this->incidenciaTipo) && $this->incidenciaTipo != "", function($q){
+                                return $q->where('tipo', $this->incidenciaTipo);
+                            })
+                            ->whereBetween('created_at', [$this->fecha1, $this->fecha2])
+                            ->get();
     }
 
     public function drawings()
@@ -64,8 +76,8 @@ class IncidenciasRppExport implements FromCollection,  WithProperties, WithDrawi
             $incidence->incidenceable->tomo,
             $incidence->tipo,
             $incidence->observaciones,
-            $incidence->createdBy ? $incidence->createdBy->name : 'N/A',
-            $incidence->updatedBy ? $incidence->updatedBy->name : 'N/A',
+            $incidence->creado_por ? $incidence->creadoPor->name : 'N/A',
+            $incidence->actualizado_por ? $incidence->actualizadoPor->name : 'N/A',
             $incidence->created_at,
             $incidence->updated_at,
         ];

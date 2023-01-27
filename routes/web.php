@@ -30,34 +30,36 @@ use App\Http\Controllers\Admin\DashboardController;
 Route::get('setpassword/{email}', [SetPasswordController::class, 'create'])->name('setpassword');
 Route::post('setpassword', [SetPasswordController::class, 'store'])->name('setpassword.store');
 
-Route::group(['middleware' => ['auth', 'is.active']], function(){
+Route::get('/', function () {
+    return redirect('login');
+});
 
-    Route::get('/', DashboardController::class)->name('dashboard');
+Route::group(['middleware' => ['auth', 'is.active']], function(){
 
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
-    Route::get('usuarios', Usuarios::class)->name('usuarios');
+    Route::get('usuarios', Usuarios::class)->middleware('permission:Lista de usuarios')->name('usuarios');
 
-    Route::get('permisos', Permisos::class)->name('permisos');
+    Route::get('permisos', Permisos::class)->middleware('permission:Lista de permisos')->name('permisos');
 
-    Route::get('roles', Roles::class)->name('roles');
+    Route::get('roles', Roles::class)->middleware('permission:Lista de roles')->name('roles');
 
-    Route::get('catastro_archivos', CatastroArchivo::class)->name('catastro_archivos');
+    Route::get('catastro_archivos', CatastroArchivo::class)->middleware('permission:Lista de archivos catastro')->name('catastro_archivos');
 
-    Route::get('rpp_archivos', RppArchivos::class)->name('rpp_archivos');
+    Route::get('rpp_archivos', RppArchivos::class)->middleware('permission:Lista de archivos rpp')->name('rpp_archivos');
 
-    Route::get('rpp_solicitudes', SolicitudesRpp::class)->name('rpp_solicitudes');
+    Route::get('rpp_solicitudes', SolicitudesRpp::class)->middleware('permission:Lista de solicitudes rpp')->name('rpp_solicitudes');
 
-    Route::get('catastro_solicitudes', SolicitudesCatastro::class)->name('catastro_solicitudes');
+    Route::get('catastro_solicitudes', SolicitudesCatastro::class)->middleware('permission:Lista de solicitudes catastro')->name('catastro_solicitudes');
     Route::get('catastro_solicitudes/lista/{solicitud}', [CatastroSolicitudesController::class, 'imprimirLista'])->name('solicitudes.lista');
 
-    Route::get('distribuidor_rpp', DistribuidorRpp::class)->name('distribuidor_rpp');
+    Route::get('distribuidor_rpp', DistribuidorRpp::class)->middleware('permission:Distribución RPP')->name('distribuidor_rpp');
 
-    Route::get('distribuidor_catastro', DistribuidorCatastro::class)->name('distribuidor_catastro');
+    Route::get('distribuidor_catastro', DistribuidorCatastro::class)->middleware('permission:Distribución Catastro')->name('distribuidor_catastro');
 
-    Route::get('reportes_catastro', ReportesCatastro::class)->name('reportes_catastro');
+    Route::get('reportes_catastro', ReportesCatastro::class)->middleware('permission:Reportes Catastro')->name('reportes_catastro');
 
-    Route::get('reportes_rpp', ReportesRpp::class)->name('reportes_rpp');
+    Route::get('reportes_rpp', ReportesRpp::class)->middleware('permission:Reportes Rpp')->name('reportes_rpp');
 
 });
 

@@ -2,11 +2,12 @@
 
 namespace App\Http\Livewire\Admin;
 
-use App\Http\Traits\ComponentesTrait;
 use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Log;
+use App\Http\Traits\ComponentesTrait;
 
 class Usuarios extends Component
 {
@@ -85,6 +86,7 @@ class Usuarios extends Component
 
         } catch (\Throwable $th) {
 
+            Log::error("Error al crear usuario por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
             $this->resetearTodo();
         }
@@ -115,6 +117,8 @@ class Usuarios extends Component
             $this->dispatchBrowserEvent('mostrarMensaje', ['success', "El usuario se actualizó con éxito."]);
 
         } catch (\Throwable $th) {
+
+            Log::error("Error al actualizar usuario por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
             $this->resetearTodo();
         }
@@ -134,6 +138,8 @@ class Usuarios extends Component
             $this->dispatchBrowserEvent('mostrarMensaje', ['success', "El usuario se elimino con exito."]);
 
         } catch (\Throwable $th) {
+
+            Log::error("Error al borrar usuario por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
             $this->resetearTodo();
         }
@@ -159,7 +165,7 @@ class Usuarios extends Component
                                 ->orderBy($this->sort, $this->direction)
                                 ->paginate($this->pagination);
 
-            $roles = Role::all();
+            $roles = Role::orderBy('name')->get();
 
         }else{
 
@@ -179,11 +185,9 @@ class Usuarios extends Component
                                 ->orderBy($this->sort, $this->direction)
                                 ->paginate($this->pagination);
 
-            $roles = Role::where('name', 'LIKE', '%' . auth()->user()->localidad . '%')->get();
+            $roles = Role::where('name', 'LIKE', '%' . auth()->user()->localidad . '%')->orderBy('name')->get();
 
         }
-
-
 
         return view('livewire.admin.usuarios', compact('usuarios', 'roles'))->extends('layouts.admin');
     }

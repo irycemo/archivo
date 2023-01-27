@@ -2,12 +2,13 @@
 
 namespace App\Http\Livewire\Admin;
 
-use App\Models\User;
 use Livewire\Component;
 use App\Http\Constantes;
 use App\Models\Solicitud;
 use Livewire\WithPagination;
 use App\Models\CatastroArchivo;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use App\Http\Traits\ComponentesTrait;
 use App\Models\CatastroArchivoSolicitud;
@@ -59,18 +60,23 @@ class SolicitudesCatastro extends Component
 
         try{
 
-            $solicitud = Solicitud::find($this->selected_id);
+            DB::transaction(function () {
 
-            $solicitud->archivosCatastroSolicitados()->get()->each->delete();
+                $solicitud = Solicitud::find($this->selected_id);
 
-            $solicitud->delete();
+                $solicitud->archivosCatastroSolicitados()->get()->each->delete();
 
-            $this->resetearTodo();
+                $solicitud->delete();
 
-            $this->dispatchBrowserEvent('mostrarMensaje', ['success', "La solicitud se eliminó con éxito."]);
+                $this->resetearTodo();
+
+                $this->dispatchBrowserEvent('mostrarMensaje', ['success', "La solicitud se eliminó con éxito."]);
+
+            });
 
         } catch (\Throwable $th) {
 
+            Log::error("Error al borrar solicitud por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
             $this->resetearTodo();
 
@@ -197,6 +203,7 @@ class SolicitudesCatastro extends Component
 
         } catch (\Throwable $th) {
 
+            Log::error("Error al remover archivo de solicitud id:" . $this->solicitud->id . " por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
             $this->resetearTodo();
 
@@ -237,7 +244,8 @@ class SolicitudesCatastro extends Component
                     $archivo->archivo->update(['estado' => 'ocupado']);
 
             } catch (\Throwable $th) {
-                dd($th);
+
+                Log::error("Error al aceptar solicitud id: " . $this->solicitud->id . " por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
                 $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
                 $this->resetearTodo();
 
@@ -255,6 +263,7 @@ class SolicitudesCatastro extends Component
 
             } catch (\Throwable $th) {
 
+                Log::error("Error al rechazar solicitud id: " . $this->solicitud->id . " por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
                 $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
                 $this->resetearTodo();
 
@@ -284,6 +293,7 @@ class SolicitudesCatastro extends Component
 
             } catch (\Throwable $th) {
 
+                Log::error("Error al entregar solicitud id: " . $this->solicitud->id . " por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
                 $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
                 $this->resetearTodo();
 
@@ -307,6 +317,7 @@ class SolicitudesCatastro extends Component
 
             } catch (\Throwable $th) {
 
+                Log::error("Error al recibir solicitud id: " . $this->solicitud->id . " por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
                 $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
                 $this->resetearTodo();
 
@@ -338,6 +349,8 @@ class SolicitudesCatastro extends Component
             $this->resetearTodo();
 
         } catch (\Throwable $th) {
+
+            Log::error("Error al recibir archivo id: " .$archivoSolicitado->id . " de  solicitud id: " . $this->solicitud->id . " por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
         }
 
@@ -367,7 +380,7 @@ class SolicitudesCatastro extends Component
 
     public function render()
     {
-        $secciones = Constantes::SECCIONES;
+        $secciones = collect(Constantes::SECCIONES)->sort();
 
         if(auth()->user()->hasRole('Administrador')){
 

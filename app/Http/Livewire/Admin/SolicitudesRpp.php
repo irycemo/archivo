@@ -7,7 +7,9 @@ use App\Http\Constantes;
 use App\Models\Solicitud;
 use App\Models\RppArchivo;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\DB;
 use App\Models\RppArchivoSolicitud;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use App\Http\Traits\ComponentesTrait;
 
@@ -57,18 +59,23 @@ class SolicitudesRpp extends Component
 
         try{
 
-            $solicitud = Solicitud::find($this->selected_id);
+            DB::transaction(function () {
 
-            $solicitud->archivosRppSolicitados()->get()->each->delete();
+                $solicitud = Solicitud::find($this->selected_id);
 
-            $solicitud->delete();
+                $solicitud->archivosRppSolicitados()->get()->each->delete();
 
-            $this->resetearTodo();
+                $solicitud->delete();
 
-            $this->dispatchBrowserEvent('mostrarMensaje', ['success', "La solicitud se eliminó con éxito."]);
+                $this->resetearTodo();
+
+                $this->dispatchBrowserEvent('mostrarMensaje', ['success', "La solicitud se eliminó con éxito."]);
+
+            });
 
         } catch (\Throwable $th) {
 
+            Log::error("Error al crear rol por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
             $this->resetearTodo();
 
@@ -181,12 +188,11 @@ class SolicitudesRpp extends Component
 
         } catch (\Throwable $th) {
 
+            Log::error("Error al remover archivo por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
             $this->resetearTodo();
 
         }
-
-
 
     }
 
@@ -224,6 +230,7 @@ class SolicitudesRpp extends Component
 
             } catch (\Throwable $th) {
 
+                Log::error("Error al aceptar solicitud por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
                 $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
                 $this->resetearTodo();
 
@@ -240,6 +247,7 @@ class SolicitudesRpp extends Component
 
             } catch (\Throwable $th) {
 
+                Log::error("Error al rechazar solicitud id: " . $id . " por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
                 $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
                 $this->resetearTodo();
 
@@ -269,6 +277,7 @@ class SolicitudesRpp extends Component
 
             } catch (\Throwable $th) {
 
+                Log::error("Error al rechazar solicitud id: " . $id . " por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
                 $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
                 $this->resetearTodo();
 
@@ -293,6 +302,7 @@ class SolicitudesRpp extends Component
 
             } catch (\Throwable $th) {
 
+                Log::error("Error al recibir solicitud id: " . $id . " por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
                 $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
                 $this->resetearTodo();
 
@@ -304,10 +314,28 @@ class SolicitudesRpp extends Component
 
     }
 
+    public function mount(){
+
+        if(auth()->user()->hasRole('Solicitador'))
+            $this->empleados = Http::acceptJson()->get('http://127.0.0.1:8000/api/empleados_presentes/' . rawurlencode(auth()->user()->area))->collect();
+
+            $this->empleados = [
+                0 => [
+                    'id' => 1,
+                    'nombre' => 'Prueba 1'
+                ],
+                1 => [
+                    'id' => 2,
+                    'nombre' => 'Prueba 2'
+                ]
+            ];
+
+    }
+
     public function render()
     {
 
-        $secciones = Constantes::SECCIONES;
+        $secciones = collect(Constantes::SECCIONES)->sort();
 
         if(auth()->user()->hasRole('Administrador')){
 

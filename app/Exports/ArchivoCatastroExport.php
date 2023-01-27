@@ -12,15 +12,24 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithProperties;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 
-class ArchivoCatastroExport implements FromCollection,  WithProperties, WithDrawings, ShouldAutoSize, WithEvents, WithCustomStartCell, WithColumnWidths, WithHeadings, WithMapping
+class ArchivoCatastroExport implements FromCollection,  WithProperties, WithDrawings, ShouldAutoSize, WithEvents, WithCustomStartCell, WithColumnWidths, WithHeadings, WithMapping, WithChunkReading
 {
 
-    public function __construct($coleccion)
+    public $archivoEstado;
+    public $archivoTarjeta;
+    public $fecha1;
+    public $fecha2;
+
+    public function __construct($archivoEstado, $archivoTarjeta, $fecha1, $fecha2)
     {
-        $this->coleccion = $coleccion;
+        $this->archivoEstado = $archivoEstado;
+        $this->archivoTarjeta = $archivoTarjeta;
+        $this->fecha1 = $fecha1;
+        $this->fecha2 = $fecha2;
     }
 
     /**
@@ -28,7 +37,16 @@ class ArchivoCatastroExport implements FromCollection,  WithProperties, WithDraw
     */
     public function collection()
     {
-        return $this->coleccion;
+        return CatastroArchivo::with('creadoPor', 'actualizadoPor')
+                                ->when (isset($this->archivoEstado) && $this->archivoEstado != "", function($q){
+                                    return $q->where('estado', $this->archivoEstado);
+                                })
+                                ->when (isset($this->archivoTarjeta) && $this->archivoTarjeta != "", function($q){
+                                    return $q->where('tarjeta', $this->archivoTarjeta);
+                                })
+                                ->whereBetween('created_at', [$this->fecha1 . ' 00:00:00', $this->fecha2 . ' 23:59:59'])
+                                ->get();
+
     }
 
     public function drawings()
@@ -74,8 +92,8 @@ class ArchivoCatastroExport implements FromCollection,  WithProperties, WithDraw
             $archivo->registro,
             $archivo->folio,
             $archivo->tarjeta ? 'Si' : 'No',
-            $archivo->createdBy ? $archivo->createdBy->name : 'N/A',
-            $archivo->updatedBy ? $archivo->updatedBy->name : 'N/A',
+            $archivo->creadoPor ? $archivo->creadoPor->name : 'N/A',
+            $archivo->actualizado_por ? $archivo->actualizadoPor->name : 'N/A',
             $archivo->created_at,
             $archivo->updated_at,
         ];
@@ -130,5 +148,10 @@ class ArchivoCatastroExport implements FromCollection,  WithProperties, WithDraw
             'F' => 20,
 
         ];
+    }
+
+    public function chunkSize(): int
+    {
+        return 10000;
     }
 }

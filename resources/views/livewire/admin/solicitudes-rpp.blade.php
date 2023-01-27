@@ -2,7 +2,7 @@
 
     <div class="mb-5">
 
-        <h1 class="titulo-seccion text-3xl font-thin text-gray-500 mb-3">Solicitudes</h1>
+        <h1 class="text-3xl tracking-widest py-3 px-6 text-gray-600 rounded-xl border-b-2 border-gray-500 font-thin mb-6  bg-white">Solicitudes</h1>
 
         <div class="flex justify-between">
 
@@ -24,7 +24,10 @@
             @can('Crear solicitud rpp')
 
 
-                <button wire:click="abrirModalCrear" class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 float-right mb-5 text-sm py-2 px-4 text-white rounded-full focus:outline-none hidden md:block">Agregar nueva Solicitud</button>
+                <button wire:click="abrirModalCrear" class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 float-right mb-5 text-sm py-2 px-4 text-white rounded-full focus:outline-none hidden md:block">
+                    <img wire:loading wire:target="abrirModalCrear" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
+                    Agregar nueva solicitud
+                </button>
 
                 <button wire:click="abrirModalCrear" class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 float-right mb-5 text-sm py-2 px-4 text-white rounded-full focus:outline-none md:hidden">+</button>
 
@@ -288,25 +291,28 @@
 
                                 <div class="flex justify-center lg:justify-start">
 
-                                    @can('Ver solicitud rpp')
+                                    @if ($solicitudd->estado != 'nueva')
+                                        @can('Ver solicitud rpp')
 
-                                        <button
-                                            wire:click="abrirModalVer({{$solicitudd->id}})"
-                                            wire:loading.attr="disabled"
-                                            wire:target="abrirModalVer({{$solicitudd->id}})"
-                                            class="bg-green-400 hover:shadow-lg text-white text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-green-700 flex focus:outline-none"
-                                        >
+                                            <button
+                                                wire:click="abrirModalVer({{$solicitudd->id}})"
+                                                wire:loading.attr="disabled"
+                                                wire:target="abrirModalVer({{$solicitudd->id}})"
+                                                class="bg-green-400 hover:shadow-lg text-white text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-green-700 flex focus:outline-none"
+                                            >
 
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
 
-                                            <p>Ver</p>
+                                                <p>Ver</p>
 
-                                        </button>
+                                            </button>
 
-                                    @endcan
+                                        @endcan
+
+                                    @endif
 
                                     @can('Editar solicitud rpp')
 
@@ -648,7 +654,7 @@
 
                                     <tr class="text-sm text-gray-500 bg-white">
                                         <td class="px-2 py-3 w-full text-gray-800 text-sm">
-                                            {{ $item->archivo->tomo }} {{ $item->archivo->bis }}
+                                            {{ $item->archivo->tomo }} {{ $item->archivo->tomo_bis }}
                                         </td><td class="px-2 py-3 w-full text-gray-800 text-sm">
                                             {{ $item->asignado_a }}
                                         </td>
@@ -693,16 +699,36 @@
                         wire:loading.attr="disabled"
                         wire:target="resetearTodo"
                         class="bg-blue-400 text-white hover:shadow-lg font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-blue-700 flaot-left mr-1 focus:outline-none">
+                        <img wire:loading wire:target="resetearTodo" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
                         Finalizar solicitud
                     </button>
 
                 @elseif($editar)
+
+                    @if($solicitud->estado == 'nueva')
+
+                        @can('Aceptar solicitud catastro')
+
+                            <button
+                                wire:click="aceptarRechazar({{ $solicitud->id }} , 'aceptar')"
+                                wire:loading.attr="disabled"
+                                wire:target="aceptarRechazar({{ $solicitud->id }} , 'aceptar')"
+                                class="bg-green-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-green-700 flaot-left mr-1 focus:outline-none">
+                                <img wire:loading wire:target="aceptarRechazar({{ $solicitud->id }} , 'aceptar')" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
+                                Aceptar
+                            </button>
+
+                        @endcan
+
+                    @endif
 
                     <button
                         wire:click="resetearTodo"
                         wire:loading.attr="disabled"
                         wire:target="resetearTodo"
                         class="bg-blue-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-blue-700 flaot-left mr-1 focus:outline-none">
+                        <img wire:loading wire:target="resetearTodo" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
+
                         Actualizar
                     </button>
 
@@ -835,18 +861,6 @@
 
                 <div class="float-righ">
 
-                    @can('Aceptar solicitud catastro')
-
-                        <button
-                            wire:click="aceptarRechazar({{ $solicitud->id }} , 'aceptar')"
-                            wire:loading.attr="disabled"
-                            wire:target="aceptarRechazar({{ $solicitud->id }} , 'aceptar')"
-                            class="bg-green-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-green-700 flaot-left mr-1 focus:outline-none">
-                            Aceptar
-                        </button>
-
-                    @endcan
-
                     @can('Rechazar solicitud catastro')
 
                         <button
@@ -855,6 +869,7 @@
                             wire:target="aceptarRechazar({{ $solicitud->id }},  'rechazar')"
                             type="button"
                             class="bg-red-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-red-700 flaot-left focus:outline-none">
+                            <img wire:loading wire:target="aceptarRechazar({{ $solicitud->id }},  'rechazar')" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
                             Rechazar
                         </button>
 
@@ -871,6 +886,7 @@
                         wire:loading.attr="disabled"
                         wire:target="entregarRecibir({{ $solicitud->id }} , 'entregar')"
                         class="bg-green-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-green-700 flaot-left mr-1 focus:outline-none">
+                        <img wire:loading wire:target="entregarRecibir({{ $solicitud->id }} , 'entregar')" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
                         Entregar
                     </button>
 
@@ -886,6 +902,7 @@
                     wire:target="entregarRecibir({{ $solicitud->id }},  'recibir')"
                     type="button"
                     class="bg-blue-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-blue-700 flaot-left focus:outline-none">
+                    <img wire:loading wire:target="entregarRecibir({{ $solicitud->id }},  'recibir')" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
                     Recibir
                 </button>
 
@@ -897,6 +914,7 @@
                 wire:target="resetearTodo"
                 type="button"
                 class="bg-red-400 hover:shadow-lg ml-2 text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-red-700 flaot-left focus:outline-none">
+                <img wire:loading wire:target="resetearTodo" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
                 Cerrar
             </button>
 
