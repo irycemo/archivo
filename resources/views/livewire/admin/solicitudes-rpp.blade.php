@@ -707,7 +707,7 @@
 
                     @if($solicitud->estado == 'nueva')
 
-                        @can('Aceptar solicitud catastro')
+                        @can('Aceptar solicitud rpp')
 
                             <button
                                 wire:click="aceptarRechazar({{ $solicitud->id }} , 'aceptar')"
@@ -719,6 +719,20 @@
                             </button>
 
                         @endcan
+
+                        @can('Rechazar solicitud rpp')
+
+                        <button
+                            wire:click="aceptarRechazar({{ $solicitud->id }},  'rechazar')"
+                            wire:loading.attr="disabled"
+                            wire:target="aceptarRechazar({{ $solicitud->id }},  'rechazar')"
+                            type="button"
+                            class="bg-red-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-red-700 flaot-left focus:outline-none">
+                            <img wire:loading wire:target="aceptarRechazar({{ $solicitud->id }},  'rechazar')" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
+                            Rechazar
+                        </button>
+
+                    @endcan
 
                     @endif
 
@@ -857,29 +871,9 @@
 
         <x-slot name="footer">
 
-            @if($solicitud && $solicitud->estado == 'nueva')
+            @if($solicitud && $solicitud->estado == 'aceptada')
 
-                <div class="float-righ">
-
-                    @can('Rechazar solicitud catastro')
-
-                        <button
-                            wire:click="aceptarRechazar({{ $solicitud->id }},  'rechazar')"
-                            wire:loading.attr="disabled"
-                            wire:target="aceptarRechazar({{ $solicitud->id }},  'rechazar')"
-                            type="button"
-                            class="bg-red-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-red-700 flaot-left focus:outline-none">
-                            <img wire:loading wire:target="aceptarRechazar({{ $solicitud->id }},  'rechazar')" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
-                            Rechazar
-                        </button>
-
-                    @endcan
-
-                </div>
-
-            @elseif($solicitud && $solicitud->estado == 'aceptada')
-
-                @can('Entregar solicitud catastro')
+                @can('Entregar solicitud rpp')
 
                     <button
                         wire:click="entregarRecibir({{ $solicitud->id }} , 'entregar')"

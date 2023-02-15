@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Admin;
 
 use Livewire\Component;
+use App\Http\Constantes;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Log;
 use App\Http\Traits\ComponentesTrait;
@@ -126,12 +127,14 @@ class Permisos extends Component
     public function render()
     {
 
+        $areas = collect(Constantes::AREAS)->sort();
+
         $permisos = Permission::with('creadoPor', 'actualizadoPor')
                                 ->where('name', 'LIKE', '%' . $this->search . '%')
                                 ->orWhere('area', 'LIKE', '%' . $this->search . '%')
                                 ->orderBy($this->sort, $this->direction)
                                 ->paginate($this->pagination);
 
-        return view('livewire.admin.permisos', compact('permisos'))->extends('layouts.admin');
+        return view('livewire.admin.permisos', compact('permisos', 'areas'))->extends('layouts.admin');
     }
 }

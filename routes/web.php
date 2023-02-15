@@ -1,10 +1,10 @@
 <?php
 
-use App\Http\Controllers\Admin\CatastroSolicitudesController;
 use App\Http\Livewire\Admin\Roles;
 use App\Http\Livewire\Admin\Permisos;
 use App\Http\Livewire\Admin\Usuarios;
 use Illuminate\Support\Facades\Route;
+use App\Http\Livewire\Admin\Auditoria;
 use App\Http\Livewire\Admin\ReportesRpp;
 use App\Http\Livewire\Admin\RppArchivos;
 use App\Http\Controllers\ManualController;
@@ -16,6 +16,7 @@ use App\Http\Controllers\SetPasswordController;
 use App\Http\Livewire\Admin\SolicitudesCatastro;
 use App\Http\Livewire\Admin\DistribuidorCatastro;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\CatastroSolicitudesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,6 +61,8 @@ Route::group(['middleware' => ['auth', 'is.active']], function(){
     Route::get('reportes_catastro', ReportesCatastro::class)->middleware('permission:Reportes Catastro')->name('reportes_catastro');
 
     Route::get('reportes_rpp', ReportesRpp::class)->middleware('permission:Reportes Rpp')->name('reportes_rpp');
+
+    Route::get('auditoria', Auditoria::class)->middleware('permission:Auditoria')->name('auditoria');
 
 });
 

@@ -112,7 +112,7 @@ class SolicitudesCatastro extends Component
 
             if($a->status == "1"){
 
-                $this->dispatchBrowserEvent('mostrarMensaje', ['error', "EL archivo se encuentra digitalizado, consultelo en SGC"]);
+                $this->dispatchBrowserEvent('mostrarMensaje', ['error', "EL archivo se encuentra digitalizado, consultelo en el Sistema de Gestión Catastral"]);
 
                 $this->reset('archivo');
 
@@ -259,7 +259,7 @@ class SolicitudesCatastro extends Component
                 $solicitud->update(['estado' => 'rechazada']);
 
                 foreach($solicitud->archivosCatastroSolicitados as $archivoSolicitado)
-                $archivoSolicitado->archivo->update(['estado' => 'disponible']);
+                    $archivoSolicitado->archivo->update(['estado' => 'disponible']);
 
             } catch (\Throwable $th) {
 

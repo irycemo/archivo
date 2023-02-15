@@ -15,6 +15,7 @@
         "livewire/livewire": "^2.5",
         "maatwebsite/excel": "^3.1",
         "opcodesio/log-viewer": "^1.4",
+        "owen-it/laravel-auditing": "^13.0",
         "psr/simple-cache": "1.0",
         "spatie/laravel-permission": "^5.5"
     },

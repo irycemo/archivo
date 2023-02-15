@@ -9,12 +9,15 @@ use App\Http\Traits\ModelosTrait;
 use App\Models\RppArchivoSolicitud;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\CatastroArchivoSolicitud;
+use OwenIt\Auditing\Contracts\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Solicitud extends Model
+class Solicitud extends Model implements Auditable
 {
     use HasFactory;
     use ModelosTrait;
+    use \OwenIt\Auditing\Auditable;
+
 
     protected $fillable = ['tiempo', 'estado', 'entregado_en', 'regresado_en', 'surtidor', 'ubicacion', 'creado_por', 'actualizado_por', 'numero'];
 
@@ -36,6 +39,10 @@ class Solicitud extends Model
 
     public function archivosCatastroSolicitados(){
         return $this->hasMany(CatastroArchivoSolicitud::class);
+    }
+
+    public function getTiempoAttribute(){
+        return Carbon::createFromFormat('Y-m-d', $this->attributes['tiempo'])->format('d-m-Y');
     }
 
 }

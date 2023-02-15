@@ -11,8 +11,9 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements Auditable
 {
     use HasApiTokens;
     use HasFactory;
@@ -21,6 +22,7 @@ class User extends Authenticatable
     use TwoFactorAuthenticatable;
     use HasRoles;
     use ModelosTrait;
+    use \OwenIt\Auditing\Auditable;
 
 
     /**

@@ -6,12 +6,15 @@ use App\Http\Traits\ModelosTrait;
 use App\Models\File;
 use App\Models\Incidence;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class RppArchivo extends Model
+class RppArchivo extends Model implements Auditable
 {
     use HasFactory;
     use ModelosTrait;
+    use \OwenIt\Auditing\Auditable;
+
 
     protected $fillable = ['tomo', 'tomo_bis', 'seccion', 'distrito', 'estado', 'creado_por', 'actualizado_por'];
 

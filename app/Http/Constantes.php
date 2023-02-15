@@ -12,7 +12,8 @@ class Constantes{
         'Solicitudes Rpp',
         'Solicitudes Catastro',
         'Incidencias',
-        'Archivo'
+        'Archivo',
+        'Auditoria'
     ];
 
     /* Usuarios */

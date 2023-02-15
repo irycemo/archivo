@@ -323,16 +323,16 @@ class SolicitudesRpp extends Component
         if(auth()->user()->hasRole('Solicitador'))
             $this->empleados = Http::acceptJson()->get('http://127.0.0.1:8000/api/empleados_presentes/' . rawurlencode(auth()->user()->area))->collect();
 
-            $this->empleados = [
-                0 => [
-                    'id' => 1,
-                    'nombre' => 'Prueba 1'
-                ],
-                1 => [
-                    'id' => 2,
-                    'nombre' => 'Prueba 2'
-                ]
-            ];
+        $this->empleados = [
+            0 => [
+                'id' => 1,
+                'nombre' => 'Prueba 1'
+            ],
+            1 => [
+                'id' => 2,
+                'nombre' => 'Prueba 2'
+            ]
+        ];
 
     }
 
