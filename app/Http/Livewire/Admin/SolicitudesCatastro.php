@@ -365,8 +365,6 @@ class SolicitudesCatastro extends Component
         if(auth()->user()->hasRole('Solicitador'))
             $this->empleados = Http::acceptJson()->get('http://10.0.250.54/gestionpersonal/api/empleados_presentes/' . rawurlencode(auth()->user()->area))->collect();
 
-            dd(auth()->user()->area);
-
         $this->empleados = [
             0 => [
                 'id' => 1,
