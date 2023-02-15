@@ -150,7 +150,7 @@
                 <span class="font-bold text-3xl text-blueGray-600">
 
                     <span>
-                        {{ $digitalizaciones }}%
+                        {{ number_format($digitalizaciones, 2) }}%
                     </span>
 
                 </span>

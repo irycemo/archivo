@@ -87,41 +87,45 @@ class SolicitudesRpp extends Component
 
         $this->reset(['archivo']);
 
-        $this->validate(['tomo' => 'required']);
+        $this->validate([
+            'tomo' => 'required',
+            'seccion' => 'required',
+            'distrito' => 'required'
+        ]);
 
-            try {
+        try {
 
-                $this->archivo = RppArchivo::with('archivo')
-                                                ->where('estado', 'disponible')
-                                                ->where('tomo', $this->tomo)
-                                                ->when(isset($this->bis), function($q){
-                                                    return $q->where('tomo_bis', $this->bis);
-                                                })
-                                                ->when(isset($this->seccion), function($q){
-                                                    return $q->where('seccion', $this->seccion);
-                                                })
-                                                ->when(isset($this->distrito), function($q){
-                                                    return $q->where('distrito', $this->distrito);
-                                                })
-                                                ->firstOrFail();
+            $this->archivo = RppArchivo::with('archivo')
+                                            ->where('estado', 'disponible')
+                                            ->where('tomo', $this->tomo)
+                                            ->when(isset($this->bis), function($q){
+                                                return $q->where('tomo_bis', $this->bis);
+                                            })
+                                            ->when(isset($this->seccion), function($q){
+                                                return $q->where('seccion', $this->seccion);
+                                            })
+                                            ->when(isset($this->distrito), function($q){
+                                                return $q->where('distrito', $this->distrito);
+                                            })
+                                            ->firstOrFail();
 
-                if($this->archivo->archivo){
+            if($this->archivo->archivo){
 
-                    $this->dispatchBrowserEvent('mostrarMensaje', ['error', "EL archivo se encuentra digitalizado."]);
+                $this->dispatchBrowserEvent('mostrarMensaje', ['error', "EL archivo se encuentra digitalizado."]);
 
-                    $this->reset('archivo');
+                $this->reset('archivo');
 
-                    return;
-
-                }
-
-            } catch (\Throwable $th) {
-
-                $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Archivo no disponible."]);
-
-                $this->reset(['tomo', 'bis', 'distrito', 'seccion']);
+                return;
 
             }
+
+        } catch (\Throwable $th) {
+
+            $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Archivo no disponible."]);
+
+            $this->reset(['tomo', 'bis', 'distrito', 'seccion']);
+
+        }
 
     }
 
