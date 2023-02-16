@@ -226,7 +226,8 @@
 
                                 <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Fecha de devolución</span>
 
-                                {{ $solicitudd->tiempo }}
+                                {{ Carbon\Carbon::createFromFormat('Y-m-d', $solicitudd->tiempo)->format('d-m-Y') }}
+
 
                             </td>
 
@@ -337,24 +338,28 @@
 
                                     @endcan
 
-                                    @can('Borrar solicitud catastro')
+                                    @if ($solicitudd->estado == 'nueva' || $solicitudd->estado == 'aceptada')
 
-                                        <button
-                                            wire:click="abrirModalBorrar({{$solicitudd}})"
-                                            wire:loading.attr="disabled"
-                                            wire:target="abrirModalBorrar({{$solicitudd}})"
-                                            class="bg-red-400 hover:shadow-lg text-white text-xs md:text-sm px-3 py-2 rounded-full hover:bg-red-700 flex focus:outline-none"
-                                        >
+                                        @can('Borrar solicitud catastro')
 
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
+                                            <button
+                                                wire:click="abrirModalBorrar({{$solicitudd}})"
+                                                wire:loading.attr="disabled"
+                                                wire:target="abrirModalBorrar({{$solicitudd}})"
+                                                class="bg-red-400 hover:shadow-lg text-white text-xs md:text-sm px-3 py-2 rounded-full hover:bg-red-700 flex focus:outline-none"
+                                            >
 
-                                            <p>Eliminar</p>
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
 
-                                        </button>
+                                                <p>Eliminar</p>
 
-                                    @endcan
+                                            </button>
+
+                                        @endcan
+
+                                    @endif
 
                                 </div>
 

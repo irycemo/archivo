@@ -8,6 +8,18 @@
 
             <div>
 
+                <select class="bg-white rounded-full text-sm" wire:model="usuario">
+
+                    <option value="" selected>Seleccione un usuario</option>
+
+                    @foreach ($usuarios as $user)
+
+                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+
+                    @endforeach
+
+                </select>
+
                 <select class="bg-white rounded-full text-sm" wire:model="modelo">
 
                     <option value="" selected>Seleccione un área</option>
@@ -379,7 +391,7 @@
                 <strong>Evento:</strong>
                 @if( $selecetedAudit['event'] == 'updated')
                     <p>Actualización</p>
-                @elseif($selecetedAudit['event'] == 'deleted')
+                @elseif($selecetedAudit['event'] == 'created')
                    <p>Creado</p>
                 @else
                     <p>Borrado</p>

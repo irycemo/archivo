@@ -49,6 +49,7 @@ class RppArchivos extends Component
 
     public function resetearTodo(){
 
+        $this->dispatchBrowserEvent('removeFiles');
         $this->reset(['modalBorrar', 'archivoPDF', 'crear', 'editar', 'modal', 'estado', 'tomo', 'tomo_bis', 'seccion', 'distrito', 'modalIncidencias', 'incidencias','incidenciaTipo', 'incidenciaObservaciones']);
         $this->resetErrorBag();
         $this->resetValidation();
@@ -84,7 +85,7 @@ class RppArchivos extends Component
 
         if(RppArchivo::where('tomo', $this->tomo)->where('seccion', $this->seccion)->where('distrito', $this->distrito)->where('tomo_bis', $this->tomo_bis)->first()){
 
-            $this->dispatchBrowserEvent('mostrarMensaje', ['error', "La cuenta ya se encuentra regsitrada."]);
+            $this->dispatchBrowserEvent('mostrarMensaje', ['error', "El tomo ya se encuentra regsitrado."]);
 
             return;
         }

@@ -48,9 +48,9 @@ class DashboardController extends Controller
             $solicitudesTotal = Solicitud::where('ubicacion', 'RPP')->whereMonth('created_at', Carbon::now()->month)->count();
             $solicitudesNuevas = Solicitud::where('ubicacion', 'RPP')->where('estado', 'nueva')->whereMonth('created_at', Carbon::now()->month)->count();
             $solicitudesEntregadas = Solicitud::where('ubicacion', 'RPP')->where('estado', 'entregada')->whereMonth('created_at', Carbon::now()->month)->count();
-            $solicitudesRecibidas = Solicitud::where('ubicacion', 'RPP')->where('estado', 'recibida')->whereMonth('created_at', Carbon::now()->month)->count();
+            $solicitudesRecibidas = Solicitud::where('ubicacion', 'RPP')->where('estado', 'regresada')->whereMonth('created_at', Carbon::now()->month)->count();
             $solicitudesRechazadas = Solicitud::where('ubicacion', 'RPP')->where('estado', 'rechazada')->whereMonth('created_at', Carbon::now()->month)->count();
-            $solicitudesVencidas = Solicitud::where('ubicacion', 'RPP')->here('estado', 'entregada')->where('tiempo', '<', now())->get();
+            $solicitudesVencidas = Solicitud::where('ubicacion', 'RPP')->where('estado', 'entregada')->where('tiempo', '<', now())->get();
 
             $solicitados = RppArchivo::where('estado', 'solicitado')->whereMonth('created_at', Carbon::now()->month)->count();
             $ocupados = RppArchivo::where('estado', 'ocupado')->whereMonth('created_at', Carbon::now()->month)->count();
@@ -78,12 +78,12 @@ class DashboardController extends Controller
 
         }elseif(auth()->user()->localidad == 'Catastro'){
 
-            $solicitudesTotal = Solicitud::where('ubicacion', 'catastro')->whereMonth('created_at', Carbon::now()->month)->count();
-            $solicitudesNuevas = Solicitud::where('ubicacion', 'catastro')->where('estado', 'nueva')->whereMonth('created_at', Carbon::now()->month)->count();
-            $solicitudesEntregadas = Solicitud::where('ubicacion', 'catastro')->where('estado', 'entregada')->whereMonth('created_at', Carbon::now()->month)->count();
-            $solicitudesRecibidas = Solicitud::where('ubicacion', 'catastro')->where('estado', 'regresada')->whereMonth('created_at', Carbon::now()->month)->count();
-            $solicitudesRechazadas = Solicitud::where('ubicacion', 'catastro')->where('estado', 'rechazada')->whereMonth('created_at', Carbon::now()->month)->count();
-            $solicitudesVencidas = Solicitud::where('ubicacion', 'catastro')->where('estado', 'entregada')->where('tiempo', '<', now())->get();
+            $solicitudesTotal = Solicitud::where('ubicacion', 'Catastro')->whereMonth('created_at', Carbon::now()->month)->count();
+            $solicitudesNuevas = Solicitud::where('ubicacion', 'Catastro')->where('estado', 'nueva')->whereMonth('created_at', Carbon::now()->month)->count();
+            $solicitudesEntregadas = Solicitud::where('ubicacion', 'Catastro')->where('estado', 'entregada')->whereMonth('created_at', Carbon::now()->month)->count();
+            $solicitudesRecibidas = Solicitud::where('ubicacion', 'Catastro')->where('estado', 'regresada')->whereMonth('created_at', Carbon::now()->month)->count();
+            $solicitudesRechazadas = Solicitud::where('ubicacion', 'Catastro')->where('estado', 'rechazada')->whereMonth('created_at', Carbon::now()->month)->count();
+            $solicitudesVencidas = Solicitud::where('ubicacion', 'Catastro')->where('estado', 'entregada')->where('tiempo', '<', now())->get();
 
             $solicitados = CatastroArchivo::where('estado', 'solicitado')->whereMonth('created_at', Carbon::now()->month)->count();
             $ocupados = CatastroArchivo::where('estado', 'ocupado')->whereMonth('created_at', Carbon::now()->month)->count();

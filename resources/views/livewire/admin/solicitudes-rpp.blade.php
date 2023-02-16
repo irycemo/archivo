@@ -227,7 +227,7 @@
 
                                 <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Fecha de devolución</span>
 
-                                {{ $solicitudd->tiempo }}
+                                {{ Carbon\Carbon::createFromFormat('Y-m-d', $solicitudd->tiempo)->format('d-m-Y') }}
 
                             </td>
 
@@ -239,7 +239,7 @@
 
                             </td>
 
-                            <td class="px-3 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
+                            <td class="px-3 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:border-0 border border-b block lg:table-cell relative lg:static">
 
                                 <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Estado</span>
 
@@ -337,24 +337,28 @@
 
                                     @endcan
 
-                                    @can('Borrar solicitud rpp')
+                                    @if ($solicitudd->estado == 'nueva' || $solicitudd->estado == 'aceptada')
 
-                                        <button
-                                            wire:click="abrirModalBorrar({{$solicitudd}})"
-                                            wire:loading.attr="disabled"
-                                            wire:target="abrirModalBorrar({{$solicitudd}})"
-                                            class="bg-red-400 hover:shadow-lg text-white text-xs md:text-sm px-3 py-2 rounded-full hover:bg-red-700 flex focus:outline-none"
-                                        >
+                                        @can('Borrar solicitud rpp')
 
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
+                                            <button
+                                                wire:click="abrirModalBorrar({{$solicitudd}})"
+                                                wire:loading.attr="disabled"
+                                                wire:target="abrirModalBorrar({{$solicitudd}})"
+                                                class="bg-red-400 hover:shadow-lg text-white text-xs md:text-sm px-3 py-2 rounded-full hover:bg-red-700 flex focus:outline-none"
+                                            >
 
-                                            <p>Eliminar</p>
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
 
-                                        </button>
+                                                <p>Eliminar</p>
 
-                                    @endcan
+                                            </button>
+
+                                        @endcan
+
+                                    @endif
 
                                 </div>
 
@@ -654,7 +658,7 @@
 
                                     <tr class="text-sm text-gray-500 bg-white">
                                         <td class="px-2 py-3 w-full text-gray-800 text-sm">
-                                            {{ $item->archivo->tomo }} {{ $item->archivo->tomo_bis }}
+                                            {{ $item->archivo->tomo }} {{ $item->archivo->tomo_bis ? ' / ' .$item->archivo->tomo_bis : '' }}
                                         </td><td class="px-2 py-3 w-full text-gray-800 text-sm">
                                             {{ $item->asignado_a }}
                                         </td>
@@ -722,29 +726,19 @@
 
                         @can('Rechazar solicitud rpp')
 
-                        <button
-                            wire:click="aceptarRechazar({{ $solicitud->id }},  'rechazar')"
-                            wire:loading.attr="disabled"
-                            wire:target="aceptarRechazar({{ $solicitud->id }},  'rechazar')"
-                            type="button"
-                            class="bg-red-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-red-700 flaot-left focus:outline-none">
-                            <img wire:loading wire:target="aceptarRechazar({{ $solicitud->id }},  'rechazar')" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
-                            Rechazar
-                        </button>
+                            <button
+                                wire:click="aceptarRechazar({{ $solicitud->id }},  'rechazar')"
+                                wire:loading.attr="disabled"
+                                wire:target="aceptarRechazar({{ $solicitud->id }},  'rechazar')"
+                                type="button"
+                                class="bg-red-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-red-700 flaot-left focus:outline-none">
+                                <img wire:loading wire:target="aceptarRechazar({{ $solicitud->id }},  'rechazar')" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
+                                Rechazar
+                            </button>
 
-                    @endcan
+                        @endcan
 
                     @endif
-
-                    <button
-                        wire:click="resetearTodo"
-                        wire:loading.attr="disabled"
-                        wire:target="resetearTodo"
-                        class="bg-blue-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-blue-700 flaot-left mr-1 focus:outline-none">
-                        <img wire:loading wire:target="resetearTodo" class="mx-auto h-4 mr-1" src="{{ asset('storage/img/loading3.svg') }}" alt="Loading">
-
-                        Actualizar
-                    </button>
 
                 @endif
 
@@ -830,7 +824,7 @@
                                 <tr class="text-sm text-gray-500 bg-white">
 
                                     <td class="px-2 py-3 w-full text-gray-800 text-sm">
-                                        {{ $archivoSolicitado->archivo->tomo }}  {{ $archivoSolicitado->archivo->tomo_bis }}
+                                        {{ $archivoSolicitado->archivo->tomo }}  {{ $archivoSolicitado->archivo->tomo_bis ? ' / ' . $archivoSolicitado->archivo->tomo_bis : ''}}
                                     </td>
                                     <td class="px-2 py-3 w-full text-gray-800 text-sm">
                                         {{ $archivoSolicitado->asignado_a }}

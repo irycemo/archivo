@@ -162,6 +162,8 @@ class SolicitudesCatastro extends Component
 
             $this->archivo->update(['estado' => 'solicitado']);
 
+            $this->solicitud->update(['actualizado_por' => auth()->user()->id]);
+
             $this->reset(['empleado', 'archivo', 'tomo', 'localidad', 'tipo', 'registro']);
 
         }else{
@@ -196,6 +198,8 @@ class SolicitudesCatastro extends Component
         try{
 
             CatastroArchivoSolicitud::destroy($id);
+
+            $this->solicitud->update(['actualizado_por' => auth()->user()->id]);
 
             $this->solicitud->refresh();
 
@@ -238,7 +242,7 @@ class SolicitudesCatastro extends Component
 
             try{
 
-                $solicitud->update(['estado' => 'aceptada']);
+                $solicitud->update(['estado' => 'aceptada', 'actualizado_por' => auth()->user()->id]);
 
                 foreach($solicitud->archivosCatastroSolicitados as $archivo)
                     $archivo->archivo->update(['estado' => 'ocupado']);
@@ -256,7 +260,7 @@ class SolicitudesCatastro extends Component
 
             try{
 
-                $solicitud->update(['estado' => 'rechazada']);
+                $solicitud->update(['estado' => 'rechazada', 'actualizado_por' => auth()->user()->id]);
 
                 foreach($solicitud->archivosCatastroSolicitados as $archivoSolicitado)
                     $archivoSolicitado->archivo->update(['estado' => 'disponible']);
@@ -283,7 +287,7 @@ class SolicitudesCatastro extends Component
 
             try{
 
-                $solicitud->update(['estado' => 'entregada']);
+                $solicitud->update(['estado' => 'entregada', 'actualizado_por' => auth()->user()->id]);
 
                 foreach($solicitud->archivosCatastroSolicitados as $archivoSolicitado)
                     $archivoSolicitado->update([
@@ -303,7 +307,7 @@ class SolicitudesCatastro extends Component
 
             try{
 
-                $solicitud->update(['estado' => 'regresada']);
+                $solicitud->update(['estado' => 'regresada', 'actualizado_por' => auth()->user()->id]);
 
                 foreach($solicitud->archivosCatastroSolicitados as $archivoSolicitado){
                     $archivoSolicitado->update([
@@ -344,6 +348,8 @@ class SolicitudesCatastro extends Component
                 'estado' => 'disponible'
             ]);
 
+            $this->solicitud->update(['actualizado_por' => auth()->user()->id]);
+
             $this->dispatchBrowserEvent('mostrarMensaje', ['success', "Se actualizó la información con éxito."]);
 
             $this->resetearTodo();
@@ -362,19 +368,8 @@ class SolicitudesCatastro extends Component
 
     public function mount(){
 
-        if(auth()->user()->hasRole('Solicitador'))
-            $this->empleados = Http::acceptJson()->get('http://10.0.250.54/gestionpersonal/api/empleados_presentes/' . rawurlencode(auth()->user()->area))->collect();
-
-        $this->empleados = [
-            0 => [
-                'id' => 1,
-                'nombre' => 'Prueba 1'
-            ],
-            1 => [
-                'id' => 2,
-                'nombre' => 'Prueba 2'
-            ]
-        ];
+        if(auth()->user()->hasRole('Solicitante Catastro'))
+            $this->empleados = Http::acceptJson()->get('http://10.0.250.54/gestionpersonal/public/api/empleados_presentes/' . rawurlencode(auth()->user()->area))->collect();
 
     }
 
@@ -402,7 +397,7 @@ class SolicitudesCatastro extends Component
                                     ->paginate($this->pagination);
 
         }
-        elseif(auth()->user()->hasRole('Solicitante')){
+        elseif(auth()->user()->hasRole('Solicitante Catastro')){
 
             $solicitudes = Solicitud::with('creadoPor', 'actualizadoPor','archivosCatastroSolicitados')
                                     ->withCount('archivosRppSolicitados', 'archivosCatastroSolicitados')

@@ -11,7 +11,9 @@
         x-data
         x-init="
             FilePond.registerPlugin(FilePondPluginFileValidateSize);
+            FilePond.registerPlugin(FilePondPluginFileValidateType);
             FilePond.setOptions({
+                acceptedFileTypes: ['application/pdf'],
                 allowMultiple: {{ isset($attributes['multiple']) ? 'true' : 'false' }},
                 allowFileSizeValidation: true,
                 server: {
@@ -22,6 +24,8 @@
                         @this.removeUpload('{{ $attributes['wire:model'] }}', filename, load);
                     }
                 },
+                labelFileTypeNotAllowed: 'Formato de archivo invalido',
+                fileValidateTypeLabelExpectedTypes: 'Formatos validos: pdf',
                 labelIdle: 'Selecciona o arrastra los archivos aquí.',
                 labelInvalidField: 'El campo contiene archivos invalidos',
                 labelTapToCancel: 'Click para cancelar',
@@ -62,6 +66,7 @@
 
     @push('scripts')
 
+        <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
         <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
         <script src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
 

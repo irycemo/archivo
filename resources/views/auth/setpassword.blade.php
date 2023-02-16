@@ -6,11 +6,11 @@
             <x-jet-authentication-card-logo />
         </x-slot>
 
-        @if(session('message'))
+        @if(session('mensaje'))
 
             <div class="mb-4">
 
-                <p>{{ session('message') }}</p>
+                <p>{{ session('mensaje') }}</p>
 
             </div>
 

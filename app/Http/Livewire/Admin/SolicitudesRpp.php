@@ -98,15 +98,9 @@ class SolicitudesRpp extends Component
             $this->archivo = RppArchivo::with('archivo')
                                             ->where('estado', 'disponible')
                                             ->where('tomo', $this->tomo)
-                                            ->when(isset($this->bis), function($q){
-                                                return $q->where('tomo_bis', $this->bis);
-                                            })
-                                            ->when(isset($this->seccion), function($q){
-                                                return $q->where('seccion', $this->seccion);
-                                            })
-                                            ->when(isset($this->distrito), function($q){
-                                                return $q->where('distrito', $this->distrito);
-                                            })
+                                            ->where('tomo_bis', $this->bis)
+                                            ->where('seccion', $this->seccion)
+                                            ->where('distrito', $this->distrito)
                                             ->firstOrFail();
 
             if($this->archivo->archivo){
@@ -151,6 +145,8 @@ class SolicitudesRpp extends Component
 
             $this->archivo->update(['estado' => 'solicitado']);
 
+            $this->solicitud->update(['actualizado_por' => auth()->user()->id]);
+
             $this->reset(['empleado', 'archivo', 'tomo', 'bis']);
 
         }else{
@@ -185,6 +181,8 @@ class SolicitudesRpp extends Component
         try{
 
             RppArchivoSolicitud::destroy($id);
+
+            $this->solicitud->update(['actualizado_por' => auth()->user()->id]);
 
             $this->solicitud->refresh();
 
@@ -227,7 +225,7 @@ class SolicitudesRpp extends Component
 
             try{
 
-                $solicitud->update(['estado' => 'aceptada']);
+                $solicitud->update(['estado' => 'aceptada', 'actualizado_por' => auth()->user()->id]);
 
                 foreach($solicitud->archivosRppSolicitados as $archivo)
                     $archivo->archivo->update(['estado' => 'ocupado']);
@@ -244,7 +242,7 @@ class SolicitudesRpp extends Component
 
             try{
 
-                $solicitud->update(['estado' => 'rechazada']);
+                $solicitud->update(['estado' => 'rechazada', 'actualizado_por' => auth()->user()->id]);
 
                 foreach($solicitud->archivosRppSolicitados as $archivoSolicitado)
                 $archivoSolicitado->archivo->update(['estado' => 'disponible']);
@@ -320,7 +318,7 @@ class SolicitudesRpp extends Component
 
     public function mount(){
 
-        if(auth()->user()->hasRole('Solicitador'))
+        if(auth()->user()->hasRole('Solicitador RPP'))
             $this->empleados = Http::acceptJson()->get('http://127.0.0.1:8000/api/empleados_presentes/' . rawurlencode(auth()->user()->area))->collect();
 
         $this->empleados = [
@@ -354,12 +352,14 @@ class SolicitudesRpp extends Component
                                     ->paginate($this->pagination);
 
         }
-        elseif(auth()->user()->hasRole('Solicitante')){
+        elseif(auth()->user()->hasRole('Solicitante RPP')){
 
             $solicitudes = Solicitud::with('creadoPor', 'actualizadoPor')
                                     ->withCount('archivosRppSolicitados', 'archivosCatastroSolicitados')
-                                    ->where('ubicacion', 'RPP')
-                                    ->where('creado_por', auth()->user()->id)
+                                    ->where(function($q){
+                                        return $q->where('ubicacion', 'RPP')
+                                            ->where('creado_por', auth()->user()->id);
+                                    })
                                     ->where(function($q){
                                         return $q->where('estado', 'LIKE', '%' . $this->search . '%')
                                                     ->orWhere('numero', 'LIKE', '%' . $this->search . '%');

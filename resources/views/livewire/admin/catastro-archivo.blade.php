@@ -349,7 +349,11 @@
 
                         </th>
 
-                        <th class="px-3 py-3 hidden lg:table-cell">Acciones</th>
+                        @if(!auth()->user()->hasRole(['Solicitante RPP', 'Solicitante Catastro']))
+
+                            <th class="px-3 py-3 hidden lg:table-cell">Acciones</th>
+
+                        @endif
 
                     </tr>
 
@@ -483,74 +487,79 @@
 
                             </td>
 
-                            <td class="px-3 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b lg:table-cell relative lg:static">
+                            @if(!auth()->user()->hasRole(['Solicitante RPP', 'Solicitante Catastro']))
 
-                                <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Acciones</span>
+                                <td class="px-3 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b lg:table-cell relative lg:static">
 
-                                <div class="flex justify-center lg:justify-start">
+                                    <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Acciones</span>
 
-                                    @can('Incidencias archivo catastro')
+                                    <div class="flex justify-center lg:justify-start">
 
-                                        <button
-                                            wire:click="abrirModalIncidencia({{$archivo->id}})"
-                                            wire:loading.attr="disabled"
-                                            wire:target="abrirModalIncidencia({{$archivo->id}})"
-                                            class="bg-green-400 hover:shadow-lg text-white text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-green-700 flex focus:outline-none"
-                                        >
+                                        @can('Incidencias archivo catastro')
 
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
+                                            <button
+                                                wire:click="abrirModalIncidencia({{$archivo->id}})"
+                                                wire:loading.attr="disabled"
+                                                wire:target="abrirModalIncidencia({{$archivo->id}})"
+                                                class="bg-green-400 hover:shadow-lg text-white text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-green-700 flex focus:outline-none"
+                                            >
 
-                                            <p>Incidencias</p>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
 
-                                        </button>
+                                                <p>Incidencias</p>
 
-                                    @endcan
+                                            </button>
 
-                                    @can('Editar archivo catastro')
+                                        @endcan
 
-                                        <button
-                                            wire:click="abrirModalEditar({{$archivo}})"
-                                            wire:loading.attr="disabled"
-                                            wire:target="abiriModalEditar({{$archivo}})"
-                                            class="bg-blue-400 hover:shadow-lg text-white text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-blue-700 flex focus:outline-none"
-                                        >
+                                        @can('Editar archivo catastro')
+
+                                            <button
+                                                wire:click="abrirModalEditar({{$archivo}})"
+                                                wire:loading.attr="disabled"
+                                                wire:target="abiriModalEditar({{$archivo}})"
+                                                class="bg-blue-400 hover:shadow-lg text-white text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-blue-700 flex focus:outline-none"
+                                            >
 
 
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
 
-                                            <p>Editar</p>
+                                                <p>Editar</p>
 
-                                        </button>
+                                            </button>
 
-                                    @endcan
+                                        @endcan
 
-                                    @can('Borrar archivo catastro')
+                                        @can('Borrar archivo catastro')
 
-                                        <button
-                                            wire:click="abrirModalBorrar({{$archivo}})"
-                                            wire:loading.attr="disabled"
-                                            wire:target="abrirModalBorrar({{$archivo}})"
-                                            class="bg-red-400 hover:shadow-lg text-white text-xs md:text-sm px-3 py-2 rounded-full hover:bg-red-700 flex focus:outline-none"
-                                        >
+                                            <button
+                                                wire:click="abrirModalBorrar({{$archivo}})"
+                                                wire:loading.attr="disabled"
+                                                wire:target="abrirModalBorrar({{$archivo}})"
+                                                class="bg-red-400 hover:shadow-lg text-white text-xs md:text-sm px-3 py-2 rounded-full hover:bg-red-700 flex focus:outline-none"
+                                            >
 
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
 
-                                            <p>Eliminar</p>
+                                                <p>Eliminar</p>
 
-                                        </button>
+                                            </button>
 
-                                    @endcan
+                                        @endcan
 
-                                </div>
+                                    </div>
 
-                            </td>
+                                </td>
+
+                            @endif
+
                         </tr>
 
                     @endforeach

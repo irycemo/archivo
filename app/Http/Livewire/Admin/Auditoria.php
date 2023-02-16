@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Admin;
 
+use App\Models\User;
 use App\Models\Audit;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -13,6 +14,7 @@ class Auditoria extends Component
     use ComponentesTrait;
     use WithPagination;
 
+    public $usuario;
     public $evento;
     public $modelo;
     public $selecetedAudit;
@@ -35,7 +37,13 @@ class Auditoria extends Component
     public function render()
     {
 
+        $usuarios = User::select('id', 'name')->orderBy('name')->get();
+
         $audits = Audit::with('user')
+                            ->when(isset($this->usuario) && $this->usuario != "", function($q){
+                                return $q->where('user_id', $this->usuario);
+
+                            })
                             ->when(isset($this->evento) && $this->evento != "", function($q){
                                 return $q->where('event', $this->evento);
 
@@ -48,7 +56,7 @@ class Auditoria extends Component
                             ->paginate($this->pagination);
 
 
-        return view('livewire.admin.auditoria', compact('audits'))->extends('layouts.admin');
+        return view('livewire.admin.auditoria', compact('audits', 'usuarios'))->extends('layouts.admin');
     }
 
 }
