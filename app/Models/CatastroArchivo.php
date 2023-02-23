@@ -23,4 +23,9 @@ class CatastroArchivo extends Model implements Auditable
     public function incidencia(){
         return $this->morphMany(Incidence::class, 'incidenceable');
     }
+
+    protected $auditEvents = [
+        'deleted',
+    ];
+
 }

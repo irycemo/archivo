@@ -346,7 +346,7 @@ class SolicitudesRpp extends Component
                                     ->where('ubicacion', 'RPP')
                                     ->where(function($q){
                                         return $q->where('estado', 'LIKE', '%' . $this->search . '%')
-                                                    ->orWhere('numero', 'LIKE', '%' . $this->search . '%');
+                                                    ->orWhere('numero', $this->search);
                                     })
                                     ->orderBy($this->sort, $this->direction)
                                     ->paginate($this->pagination);
@@ -362,7 +362,7 @@ class SolicitudesRpp extends Component
                                     })
                                     ->where(function($q){
                                         return $q->where('estado', 'LIKE', '%' . $this->search . '%')
-                                                    ->orWhere('numero', 'LIKE', '%' . $this->search . '%');
+                                                    ->orWhere('numero', $this->search);
                                     })
                                     ->orderBy($this->sort, $this->direction)
                                     ->paginate($this->pagination);
@@ -373,7 +373,7 @@ class SolicitudesRpp extends Component
                                     ->where('ubicacion', 'RPP')
                                     ->where(function($q){
                                         return $q->where('estado', 'LIKE', '%' . $this->search . '%')
-                                                    ->orWhere('numero', 'LIKE', '%' . $this->search . '%');
+                                                    ->orWhere('numero', $this->search);
                                     })
                                     ->orderBy($this->sort, $this->direction)
                                     ->paginate($this->pagination);

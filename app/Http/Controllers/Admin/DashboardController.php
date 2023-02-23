@@ -21,7 +21,7 @@ class DashboardController extends Controller
             $solicitudesEntregadas = Solicitud::where('estado', 'entregada')->whereMonth('created_at', Carbon::now()->month)->count();
             $solicitudesRecibidas = Solicitud::where('estado', 'recibida')->whereMonth('created_at', Carbon::now()->month)->count();
             $solicitudesRechazadas = Solicitud::where('estado', 'rechazada')->whereMonth('created_at', Carbon::now()->month)->count();
-            $solicitudesVencidas = Solicitud::where('estado', 'entregada')->where('tiempo', '<', now())->get();
+            $solicitudesVencidas = Solicitud::where('estado', 'entregada')->where('tiempo', '>', now()->subDays(30))->get();
 
             $solicitados = RppArchivo::where('estado', 'solicitado')->whereMonth('created_at', Carbon::now()->month)->count();
             $ocupados = RppArchivo::where('estado', 'ocupado')->whereMonth('created_at', Carbon::now()->month)->count();
@@ -50,7 +50,7 @@ class DashboardController extends Controller
             $solicitudesEntregadas = Solicitud::where('ubicacion', 'RPP')->where('estado', 'entregada')->whereMonth('created_at', Carbon::now()->month)->count();
             $solicitudesRecibidas = Solicitud::where('ubicacion', 'RPP')->where('estado', 'regresada')->whereMonth('created_at', Carbon::now()->month)->count();
             $solicitudesRechazadas = Solicitud::where('ubicacion', 'RPP')->where('estado', 'rechazada')->whereMonth('created_at', Carbon::now()->month)->count();
-            $solicitudesVencidas = Solicitud::where('ubicacion', 'RPP')->where('estado', 'entregada')->where('tiempo', '<', now())->get();
+            $solicitudesVencidas = Solicitud::where('ubicacion', 'RPP')->where('estado', 'entregada')->where('tiempo', '>', now()->subDays(30))->get();
 
             $solicitados = RppArchivo::where('estado', 'solicitado')->whereMonth('created_at', Carbon::now()->month)->count();
             $ocupados = RppArchivo::where('estado', 'ocupado')->whereMonth('created_at', Carbon::now()->month)->count();
@@ -83,7 +83,7 @@ class DashboardController extends Controller
             $solicitudesEntregadas = Solicitud::where('ubicacion', 'Catastro')->where('estado', 'entregada')->whereMonth('created_at', Carbon::now()->month)->count();
             $solicitudesRecibidas = Solicitud::where('ubicacion', 'Catastro')->where('estado', 'regresada')->whereMonth('created_at', Carbon::now()->month)->count();
             $solicitudesRechazadas = Solicitud::where('ubicacion', 'Catastro')->where('estado', 'rechazada')->whereMonth('created_at', Carbon::now()->month)->count();
-            $solicitudesVencidas = Solicitud::where('ubicacion', 'Catastro')->where('estado', 'entregada')->where('tiempo', '<', now())->get();
+            $solicitudesVencidas = Solicitud::where('ubicacion', 'Catastro')->where('estado', 'entregada')->where('tiempo', '>', now()->subDays(15))->get();
 
             $solicitados = CatastroArchivo::where('estado', 'solicitado')->whereMonth('created_at', Carbon::now()->month)->count();
             $ocupados = CatastroArchivo::where('estado', 'ocupado')->whereMonth('created_at', Carbon::now()->month)->count();

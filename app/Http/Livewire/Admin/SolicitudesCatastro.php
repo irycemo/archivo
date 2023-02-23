@@ -384,7 +384,12 @@ class SolicitudesCatastro extends Component
                                     ->where('ubicacion', 'Catastro')
                                     ->where(function($q){
                                         return $q->where('estado', 'LIKE', '%' . $this->search . '%')
-                                                    ->orWhere('numero', 'LIKE', '%' . $this->search . '%')
+                                                    ->orWhere('numero', $this->search)
+                                                    ->orWhere(function($q){
+                                                        return $q->whereHas('creadoPor', function($q){
+                                                            return $q->where('name', 'LIKE', '%' . $this->search . '%');
+                                                        });
+                                                    })
                                                     ->orWhere(function($q){
                                                         return $q->whereHas('archivosCatastroSolicitados', function($q){
                                                             return $q->whereHas('archivo', function($q){
@@ -405,7 +410,12 @@ class SolicitudesCatastro extends Component
                                     ->where('creado_por', auth()->user()->id)
                                     ->where(function($q){
                                         return $q->where('estado', 'LIKE', '%' . $this->search . '%')
-                                                    ->orWhere('numero', 'LIKE', '%' . $this->search . '%')
+                                                    ->orWhere('numero', $this->search)
+                                                    ->orWhere(function($q){
+                                                        return $q->whereHas('creadoPor', function($q){
+                                                            return $q->where('name', 'LIKE', '%' . $this->search . '%');
+                                                        });
+                                                    })
                                                     ->orWhere(function($q){
                                                         return $q->whereHas('archivosCatastroSolicitados', function($q){
                                                             return $q->whereHas('archivo', function($q){
@@ -423,7 +433,12 @@ class SolicitudesCatastro extends Component
                                     ->where('ubicacion', 'Catastro')
                                     ->where(function($q){
                                         return $q->where('estado', 'LIKE', '%' . $this->search . '%')
-                                                    ->orWhere('numero', 'LIKE', '%' . $this->search . '%')
+                                                    ->orWhere('numero', $this->search)
+                                                    ->orWhere(function($q){
+                                                        return $q->whereHas('creadoPor', function($q){
+                                                            return $q->where('name', 'LIKE', '%' . $this->search . '%');
+                                                        });
+                                                    })
                                                     ->orWhere(function($q){
                                                         return $q->whereHas('archivosCatastroSolicitados', function($q){
                                                             return $q->whereHas('archivo', function($q){
