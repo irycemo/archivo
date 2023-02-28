@@ -7,12 +7,14 @@ use Livewire\WithPagination;
 use App\Models\CatastroArchivo;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ArchivoCatastroExport;
+use App\Http\Traits\ComponentesTrait;
 use Illuminate\Support\Facades\Log;
 
 class ReporteArchivo extends Component
 {
 
     use WithPagination;
+    use ComponentesTrait;
 
     public $archivoEstado;
     public $archivoTarjeta;

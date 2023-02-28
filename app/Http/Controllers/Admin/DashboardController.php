@@ -19,12 +19,16 @@ class DashboardController extends Controller
             $solicitudesTotal = Solicitud::whereMonth('created_at', Carbon::now()->month)->count();
             $solicitudesNuevas = Solicitud::where('estado', 'nueva')->whereMonth('created_at', Carbon::now()->month)->count();
             $solicitudesEntregadas = Solicitud::where('estado', 'entregada')->whereMonth('created_at', Carbon::now()->month)->count();
-            $solicitudesRecibidas = Solicitud::where('estado', 'recibida')->whereMonth('created_at', Carbon::now()->month)->count();
+            $solicitudesRecibidas = Solicitud::where('estado', 'regresada')->whereMonth('created_at', Carbon::now()->month)->count();
             $solicitudesRechazadas = Solicitud::where('estado', 'rechazada')->whereMonth('created_at', Carbon::now()->month)->count();
             $solicitudesVencidas = Solicitud::where('estado', 'entregada')->where('tiempo', '<', now()->toDateString())->get();
 
-            $solicitados = RppArchivo::where('estado', 'solicitado')->whereMonth('created_at', Carbon::now()->month)->count();
-            $ocupados = RppArchivo::where('estado', 'ocupado')->whereMonth('created_at', Carbon::now()->month)->count();
+            $solicitadosRpp = RppArchivo::where('estado', 'solicitado')->whereMonth('created_at', Carbon::now()->month)->count();
+            $solicitadosCatastro = CatastroArchivo::where('estado', 'solicitado')->whereMonth('created_at', Carbon::now()->month)->count();
+            $solicitados = $solicitadosCatastro + $solicitadosRpp;
+            $ocupadosRpp = RppArchivo::where('estado', 'ocupado')->whereMonth('created_at', Carbon::now()->month)->count();
+            $ocupadosCatastro = CatastroArchivo::where('estado', 'ocupado')->whereMonth('created_at', Carbon::now()->month)->count();
+            $ocupados = $ocupadosRpp + $ocupadosCatastro;
             $incidencias = Incidence::whereMonth('created_at', Carbon::now()->month)->count();
             $archivosDigitalizados = File::whereMonth('created_at', Carbon::now()->month)->count();
 

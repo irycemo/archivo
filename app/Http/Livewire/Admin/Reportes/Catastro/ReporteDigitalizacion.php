@@ -2,12 +2,17 @@
 
 namespace App\Http\Livewire\Admin\Reportes\Catastro;
 
+use App\Http\Traits\ComponentesTrait;
 use App\Models\File;
 use Livewire\Component;
 use App\Models\CatastroArchivo;
+use Livewire\WithPagination;
 
 class ReporteDigitalizacion extends Component
 {
+
+    use WithPagination;
+    use ComponentesTrait;
 
     public $fecha1;
     public $fecha2;

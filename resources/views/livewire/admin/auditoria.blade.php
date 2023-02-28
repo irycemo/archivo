@@ -379,7 +379,7 @@
 
     @if($selecetedAudit)
 
-        <x-dialog-modal wire:model="modal">
+        <x-jet-dialog-modal wire:model="modal">
 
             <x-slot name="title">
 
@@ -492,7 +492,7 @@
 
             </x-slot>
 
-        </x-dialog-modal>
+        </x-jet-dialog-modal>
 
     @endif
 

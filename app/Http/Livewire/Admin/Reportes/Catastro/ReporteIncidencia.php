@@ -8,9 +8,14 @@ use App\Models\Incidence;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\IncidenciasCatastroExport;
+use App\Http\Traits\ComponentesTrait;
+use Livewire\WithPagination;
 
 class ReporteIncidencia extends Component
 {
+
+    use WithPagination;
+    use ComponentesTrait;
 
     public $incidenciaTipo;
     public $fecha1;
