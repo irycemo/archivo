@@ -23,11 +23,11 @@ class DashboardController extends Controller
             $solicitudesRechazadas = Solicitud::where('estado', 'rechazada')->whereMonth('created_at', Carbon::now()->month)->count();
             $solicitudesVencidas = Solicitud::where('estado', 'entregada')->where('tiempo', '<', now()->toDateString())->get();
 
-            $solicitadosRpp = RppArchivo::where('estado', 'solicitado')->whereMonth('created_at', Carbon::now()->month)->count();
-            $solicitadosCatastro = CatastroArchivo::where('estado', 'solicitado')->whereMonth('created_at', Carbon::now()->month)->count();
+            $solicitadosRpp = RppArchivo::where('estado', 'solicitado')->count();
+            $solicitadosCatastro = CatastroArchivo::where('estado', 'solicitado')->count();
             $solicitados = $solicitadosCatastro + $solicitadosRpp;
-            $ocupadosRpp = RppArchivo::where('estado', 'ocupado')->whereMonth('created_at', Carbon::now()->month)->count();
-            $ocupadosCatastro = CatastroArchivo::where('estado', 'ocupado')->whereMonth('created_at', Carbon::now()->month)->count();
+            $ocupadosRpp = RppArchivo::where('estado', 'ocupado')->count();
+            $ocupadosCatastro = CatastroArchivo::where('estado', 'ocupado')->count();
             $ocupados = $ocupadosRpp + $ocupadosCatastro;
             $incidencias = Incidence::whereMonth('created_at', Carbon::now()->month)->count();
             $archivosDigitalizados = File::whereMonth('created_at', Carbon::now()->month)->count();
@@ -57,8 +57,8 @@ class DashboardController extends Controller
             $solicitudesVencidas = Solicitud::where('ubicacion', 'RPP')->where('estado', 'entregada')->where('tiempo', '<', now()->toDateString())->get();
             $solicitudes_vencidas_solicitante = Solicitud::where('creado_por', auth()->user()->id)->where('estado', 'entregada')->where('tiempo', '<', now()->toDateString())->get();
 
-            $solicitados = RppArchivo::where('estado', 'solicitado')->whereMonth('created_at', Carbon::now()->month)->count();
-            $ocupados = RppArchivo::where('estado', 'ocupado')->whereMonth('created_at', Carbon::now()->month)->count();
+            $solicitados = RppArchivo::where('estado', 'solicitado')->count();
+            $ocupados = RppArchivo::where('estado', 'ocupado')->count();
             $incidencias = Incidence::whereHas('creadoPor', function($q){
                                                                             return $q->where('localidad', 'RPP');
                                                                         })
@@ -92,8 +92,8 @@ class DashboardController extends Controller
             $solicitudesVencidas = Solicitud::where('ubicacion', 'Catastro')->where('estado', 'entregada')->where('tiempo', '<', now()->toDateString())->get();
             $solicitudes_vencidas_solicitante = Solicitud::where('creado_por', auth()->user()->id)->where('estado', 'entregada')->where('tiempo', '<', now()->toDateString())->get();
 
-            $solicitados = CatastroArchivo::where('estado', 'solicitado')->whereMonth('created_at', Carbon::now()->month)->count();
-            $ocupados = CatastroArchivo::where('estado', 'ocupado')->whereMonth('created_at', Carbon::now()->month)->count();
+            $solicitados = CatastroArchivo::where('estado', 'solicitado')->count();
+            $ocupados = CatastroArchivo::where('estado', 'ocupado')->count();
             $incidencias = Incidence::whereHas('creadoPor', function($q){
                                                                 return $q->where('localidad', 'Catastro');
                                                             })
