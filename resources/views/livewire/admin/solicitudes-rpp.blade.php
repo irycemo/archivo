@@ -835,7 +835,7 @@
                                             <span class="font-semibold">Entregado por: {{$archivoSolicitado->entregadoPor->name}}</span> <br>
 
                                         @endif
-                                        {{ $archivoSolicitado->entregado_en }}
+                                        {{ $archivoSolicitado->entregado_en->format('d-m-Y H:i:s') }}
                                     </td>
                                     <td class="px-2 py-3 w-full text-gray-800 text-sm">
                                         @if($archivoSolicitado->recibidoPor != null)
@@ -843,7 +843,7 @@
                                             <span class="font-semibold">Recibido por: {{$archivoSolicitado->recibidoPor->name}}</span> <br>
 
                                         @endif
-                                        {{ $archivoSolicitado->regresado_en }}
+                                        {{ $archivoSolicitado->regresado_en->format('d-m-Y H:i:s') }}
                                     </td>
                                     <td class="px-2 py-3 w-full text-gray-800 text-sm">
                                         {{ $archivoSolicitado->repartidor ?  $archivoSolicitado->repartidor->name : 'Sin asignar'}}

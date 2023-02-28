@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Solicitud;
 use App\Models\CatastroArchivo;
@@ -11,6 +12,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class CatastroArchivoSolicitud extends Model
 {
     use HasFactory;
+
+    protected $casts = [
+        'entregado_en' => 'datetime:d-m-Y',
+        'regresado_en' => 'datetime:d-m-Y'
+    ];
 
     protected $fillable= ['catastro_archivo_id', 'solicitud_id', 'asignado_a', 'surtidor', 'entregado_en', 'regresado_en', 'entregado_por', 'recibido_por'];
 
@@ -33,4 +39,5 @@ class CatastroArchivoSolicitud extends Model
     public function recibidoPor(){
         return $this->belongsTo(User::class, 'recibido_por');
     }
+
 }

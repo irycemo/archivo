@@ -38,6 +38,24 @@ class SolicitudesCatastro extends Component
         $this->resetValidation();
     }
 
+    public function abrirModalCrear(){
+
+        $solicitudes_vencidas = Solicitud::where('creado_por', auth()->user()->id)->where('estado', 'entregada')->where('tiempo', '<', now()->toDateString())->get();
+
+        if($solicitudes_vencidas->count() > 0){
+
+            $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Tiene solicitudes con timempo vencido, es necesario regresarlas para poder seguir haciendo solicitudes."]);
+
+            return;
+        }
+
+        $this->resetearTodo();
+        $this->modal = true;
+        $this->crear =true;
+
+
+    }
+
     public function abrirModalEditar($id){
 
         $this->resetearTodo();

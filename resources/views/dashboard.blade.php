@@ -182,6 +182,57 @@
 
     </div>
 
+    @if (auth()->user()->hasRole(['Solicitante RPP', 'Solicitante Catastro']))
+
+        @if($solicitudes_vencidas_solicitante->count() > 0)
+
+            <div class="bg-white p-4 my-8 rounded-xl">
+
+                <h4 class="font-semibold text-xl mb-4">Solicitudes con tiempo vencido</h4>
+
+
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5">
+
+                    @foreach ($solicitudes_vencidas_solicitante as $item)
+
+                        @if ($item->ubicacion == 'RPP')
+
+                            <a href="{{ route('rpp_solicitudes') . "?search=" . $item->numero }}">
+
+                                <div class="mb-2">
+
+                                <p><strong>Solicitud:</strong> {{ $item->numero }}</p>
+                                <p>Fecha de entrega: {{ Carbon\Carbon::createFromFormat('Y-m-d', $item->tiempo)->format('d-m-Y') }}</p>
+
+                                </div>
+
+                            </a>
+
+                        @else
+
+                            <a href="{{ route('catastro_solicitudes') . "?search=" . $item->numero }}" class="hover:border-2 hover:border-gray-200 rounded-lg p-1 border-2 border-white">
+
+                                <div class="mb-2">
+
+                                <p><strong>Solicitud:</strong> {{ $item->numero }}</p>
+                                <p>Fecha de entrega: {{ Carbon\Carbon::createFromFormat('Y-m-d', $item->tiempo)->format('d-m-Y') }}</p>
+
+                                </div>
+
+                            </a>
+
+                        @endif
+
+                    @endforeach
+
+                </div>
+
+            </div>
+
+        @endif
+
+    @endif
+
     @if(!auth()->user()->hasRole(['Solicitante RPP', 'Solicitante Catastro']))
 
         @if(count($solicitudesVencidas) > 0)
@@ -215,7 +266,7 @@
                                 <div class="mb-2">
 
                                 <p><strong>Solicitud:</strong> {{ $item->numero }}</p>
-                                <p>Fecha de entrega: {{ $item->tiempo }}</p>
+                                <p>Fecha de entrega: {{ Carbon\Carbon::createFromFormat('Y-m-d', $item->tiempo)->format('d-m-Y') }}</p>
 
                                 </div>
 

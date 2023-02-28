@@ -14,10 +14,14 @@ class Auditoria extends Component
     use ComponentesTrait;
     use WithPagination;
 
+    public $usuarios;
+
     public $usuario;
     public $evento;
     public $modelo;
     public $selecetedAudit;
+    public $oldRole;
+    public $newRole;
     public $modelos = [
         'App\Models\CatastroArchivo',
         'App\Models\RppArchivo',
@@ -28,9 +32,24 @@ class Auditoria extends Component
 
     public function ver($audit){
 
+        if($audit['event'] == 'sync'){
+
+
+            $this->oldRole = json_decode($audit['old_values'])->roles[0]->name;
+
+            $this->newRole =json_decode($audit['new_values'])->roles[0]->name;
+
+        }
+
         $this->selecetedAudit = $audit;
 
         $this->modal = true;
+
+    }
+
+    public function mount(){
+
+        $this->usuarios = User::orderBy('name')->get();
 
     }
 

@@ -41,8 +41,4 @@ class Solicitud extends Model implements Auditable
         return $this->hasMany(CatastroArchivoSolicitud::class);
     }
 
-    /* public function getTiempoAttribute(){
-        return Carbon::createFromFormat('Y-m-d', $this->attributes['tiempo'])->format('d-m-Y');
-    } */
-
 }
