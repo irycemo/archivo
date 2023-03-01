@@ -881,7 +881,7 @@
                                             <span class="font-semibold">Entregado por: {{$archivoSolicitado->entregadoPor->name}}</span> <br>
 
                                         @endif
-                                        {{ $archivoSolicitado->entregado_en->format('d-m-Y H:i:s') }}
+                                        {{ optional($archivoSolicitado->entregado_en)->format('d-m-Y H:i:s') }}
                                     </td>
                                     <td class="px-2 py-3 w-full text-gray-800 text-xs">
                                         @if($archivoSolicitado->recibidoPor != null)
@@ -889,7 +889,7 @@
                                             <span class="font-semibold">Recibido por: {{$archivoSolicitado->recibidoPor->name}}</span> <br>
 
                                         @endif
-                                        {{ $archivoSolicitado->regresado_en->format('d-m-Y H:i:s') }}
+                                        {{ optional($archivoSolicitado->regresado_en)->format('d-m-Y H:i:s') }}
                                     </td>
 
                                     @if($solicitud->estado == "entregada" && $archivoSolicitado->recibido_por == null)
