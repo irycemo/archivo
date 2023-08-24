@@ -10,6 +10,7 @@ use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 use App\Http\Traits\ComponentesTrait;
 use Illuminate\Support\Facades\Storage;
 use App\Models\CatastroArchivo as cArchivo;
@@ -98,6 +99,17 @@ class CatastroArchivo extends Component
         if(cArchivo::where('localidad', $this->localidad)->where('oficina', $this->oficina)->where('tipo', $this->tipo)->where('registro', $this->registro)->first()){
 
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "La cuenta ya se encuentra regsitrada."]);
+
+            return;
+        }
+
+        $sgc = Http::acceptJson()->get('http://10.0.253.223:8095/sgcpredio.asmx/sgc_predio?tipo=1&locl='. $this->localidad .'&ofna=101&tpre='. $this->tipo . '&nreg='. $this->registro)->collect();
+
+        $a = json_decode($sgc);
+
+        if($a->message == "Predio no existe, favor de verificar"){
+
+            $this->dispatchBrowserEvent('mostrarMensaje', ['error', $a->message]);
 
             return;
         }
