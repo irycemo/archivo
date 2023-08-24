@@ -17,6 +17,7 @@ use App\Http\Livewire\Admin\SolicitudesCatastro;
 use App\Http\Livewire\Admin\DistribuidorCatastro;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CatastroSolicitudesController;
+use App\Http\Controllers\LimpiarArchivoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,6 +64,8 @@ Route::group(['middleware' => ['auth', 'is.active']], function(){
     Route::get('reportes_rpp', ReportesRpp::class)->middleware('permission:Reportes Rpp')->name('reportes_rpp');
 
     Route::get('auditoria', Auditoria::class)->middleware('permission:Auditoria')->name('auditoria');
+
+    Route::get('test', LimpiarArchivoController::class);
 
 });
 
