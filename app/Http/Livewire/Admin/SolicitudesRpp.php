@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Admin;
 
+use App\Models\User;
 use Livewire\Component;
 use App\Http\Constantes;
 use App\Models\Solicitud;
@@ -10,6 +11,7 @@ use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
 use App\Models\RppArchivoSolicitud;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use App\Http\Traits\ComponentesTrait;
 
@@ -19,20 +21,24 @@ class SolicitudesRpp extends Component
     use WithPagination;
 
     public $tomo;
-    public $bis;
+    public $registro;
+    public $formacion = false;
+    public $observaciones;
     public $seccion;
     public $distrito;
+    public $archivos = [];
     public $archivo;
     public $empleado;
     public $empleados;
     public $solicitud;
     public $modalVer = false;
+    public $distritos;
 
     protected $queryString = ['search'];
 
     public function resetearTodo(){
 
-        $this->reset(['modalBorrar', 'crear', 'editar', 'modal', 'archivo', 'empleado', 'tomo', 'bis', 'solicitud', 'seccion', 'distrito', 'modalVer']);
+        $this->reset(['modalBorrar', 'registro', 'formacion', 'crear', 'editar', 'modal', 'archivo', 'tomo', 'empleado', 'solicitud', 'seccion', 'distrito', 'modalVer']);
         $this->resetErrorBag();
         $this->resetValidation();
     }
@@ -55,164 +61,96 @@ class SolicitudesRpp extends Component
 
     }
 
-    public function abrirModalEditar($id){
-
-        $this->resetearTodo();
-        $this->modal = true;
-        $this->editar = true;
-
-        $this->solicitud = Solicitud::with(['archivosRppSolicitados.archivo', 'archivosRppSolicitados.repartidor', 'archivosRppSolicitados.entregadoPor', 'archivosRppSolicitados.recibidoPor'])->where('id', $id)->first();
-
-    }
-
-    public function abrirModalVer($id){
-
-        $this->resetearTodo();
-        $this->modalVer = true;
-
-        $this->solicitud = Solicitud::with(['archivosRppSolicitados.archivo', 'archivosRppSolicitados.repartidor', 'archivosRppSolicitados.entregadoPor', 'archivosRppSolicitados.recibidoPor'])->where('id', $id)->first();
-    }
-
-    public function borrar(){
-
-        try{
-
-            DB::transaction(function () {
-
-                $solicitud = Solicitud::find($this->selected_id);
-
-                $solicitud->archivosRppSolicitados()->get()->each->delete();
-
-                $solicitud->delete();
-
-                $this->resetearTodo();
-
-                $this->dispatchBrowserEvent('mostrarMensaje', ['success', "La solicitud se eliminó con éxito."]);
-
-            });
-
-        } catch (\Throwable $th) {
-
-            Log::error("Error al crear rol por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
-            $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
-            $this->resetearTodo();
-
-        }
-
-    }
-
-    public function buscarArchivo(){
-
-        $this->reset(['archivo']);
+    public function agregar(){
 
         $this->validate([
             'tomo' => 'required',
+            'registro' => 'required',
             'seccion' => 'required',
-            'distrito' => 'required'
+            'distrito' => 'required',
+            'formacion' => 'required',
+            'empleado' => 'required'
         ]);
 
-        try {
+        $archivo = RppArchivo::where('tomo', $this->tomo)
+                                ->where('registro', $this->registro)
+                                ->where('seccion', $this->seccion)
+                                ->where('distrito', $this->distrito)
+                                ->where('formacion', $this->formacion)
+                                ->first();
 
-            $this->archivo = RppArchivo::with('archivo')
-                                            ->where('estado', 'disponible')
-                                            ->where('tomo', $this->tomo)
-                                            ->where('tomo_bis', $this->bis)
-                                            ->where('seccion', $this->seccion)
-                                            ->where('distrito', $this->distrito)
-                                            ->firstOrFail();
-
-            if($this->archivo->archivo){
-
-                $this->dispatchBrowserEvent('mostrarMensaje', ['error', "EL archivo se encuentra digitalizado."]);
-
-                $this->reset('archivo');
-
-                return;
-
-            }
-
-        } catch (\Throwable $th) {
+        if($archivo){
 
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Archivo no disponible."]);
 
-            $this->reset(['tomo', 'bis', 'distrito', 'seccion']);
+            return;
 
         }
 
+        if($this->solicitud)
+            $this->agregarSolicitud();
+        else
+            $this->crearSolicitu();
+
+        $this->reset('tomo', 'registro', 'seccion', 'distrito');
+
     }
 
-    public function solicitar(){
+    public function crearSolicitu(){
 
-        $this->validate(['empleado' => 'required']);
+        DB::transaction(function () {
 
-        if($this->solicitud){
-
-            if($this->solicitud->archivosRppSolicitados()->where('rpp_archivo_id', $this->archivo->id)->first()){
-
-                $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ya ha sido solicitado."]);
-
-                $this->reset(['empleado', 'archivo', 'tomo', 'bis']);
-
-                return;
-            }
-
-            $this->solicitud->archivosRppSolicitados()->create([
-                'rpp_archivo_id' => $this->archivo->id,
-                'asignado_a' => $this->empleados[$this->empleado]['nombre'],
+            $archivo = RppArchivo::create([
+                'estado' => 'ocupado',
+                'tomo' => $this->tomo,
+                'registro' => $this->registro,
+                'seccion' => $this->seccion,
+                'distrito' => $this->distrito,
+                'formacion' => $this->formacion,
             ]);
-
-            $this->archivo->update(['estado' => 'solicitado']);
-
-            $this->solicitud->update(['actualizado_por' => auth()->user()->id]);
-
-            $this->reset(['empleado', 'archivo', 'tomo', 'bis']);
-
-        }else{
-
-            $number = Solicitud::orderBy('numero', 'desc')->value('numero');
 
             $this->solicitud = Solicitud::create([
-                'numero' => $number ? $number + 1 : 1,
-                'tiempo' => $this->calcularFechaEntrega(15),
+                'numero' => Solicitud::max('numero') + 1,
+                'tiempo' => $this->calcularFechaEntrega(30),
                 'estado' => 'nueva',
                 'creado_por' => auth()->user()->id,
-                'ubicacion' => 'RPP'
+                'ubicacion' => 'RPP',
+                'asignado_a' => $this->empleado,
+                'formacion' => $this->formacion,
             ]);
 
             $this->solicitud->archivosRppSolicitados()->create([
-                'rpp_archivo_id' => $this->archivo->id,
-                'asignado_a' => $this->empleados[$this->empleado]['nombre'],
+                'rpp_archivo_id' => $archivo->id,
+                'asignado_a' => $this->empleado
             ]);
 
-            $this->archivo->update(['estado' => 'solicitado']);
+        });
 
-            $this->reset(['empleado', 'archivo', 'tomo', 'bis']);
-
-        }
-
-        $this->solicitud->load('archivosRppSolicitados.archivo', 'archivosRppSolicitados.repartidor', 'archivosRppSolicitados.entregadoPor', 'archivosRppSolicitados.recibidoPor');
+        $this->dispatchBrowserEvent('mostrarMensaje', ['success', "Se creo una nueva solicitud."]);
 
     }
 
-    public function removerArchivo($id){
+    public function agregarSolicitud(){
 
-        try{
+        DB::transaction(function () {
 
-            RppArchivoSolicitud::destroy($id);
+            $archivo = RppArchivo::create([
+                'estado' => 'ocupado',
+                'tomo' => $this->tomo,
+                'registro' => $this->registro,
+                'seccion' => $this->seccion,
+                'distrito' => $this->distrito,
+                'formacion' => $this->solicitud->formacion,
+            ]);
 
-            $this->solicitud->update(['actualizado_por' => auth()->user()->id]);
+            $this->solicitud->archivosRppSolicitados()->create([
+                'rpp_archivo_id' => $archivo->id,
+                'asignado_a' => $this->empleado
+            ]);
 
-            $this->solicitud->refresh();
+        });
 
-            $this->solicitud->load('archivosRppSolicitados.archivo', 'archivosRppSolicitados.repartidor', 'archivosRppSolicitados.entregadoPor', 'archivosRppSolicitados.recibidoPor');
-
-        } catch (\Throwable $th) {
-
-            Log::error("Error al remover archivo por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
-            $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
-            $this->resetearTodo();
-
-        }
+        $this->solicitud->load('archivosRppSolicitados.archivo', 'archivosRppSolicitados.entregadoPor', 'archivosRppSolicitados.recibidoPor','archivosRppSolicitados.repartidor');
 
     }
 
@@ -235,18 +173,126 @@ class SolicitudesRpp extends Component
         return $final;
     }
 
-    public function aceptarRechazar($id, $tipo){
+    public function abrirModalEditar($id){
 
-        $solicitud = Solicitud::with('archivosRppSolicitados.archivo')->where('id', $id)->first();
+        $this->resetearTodo();
+        $this->modal = true;
+        $this->editar = true;
+
+        $this->solicitud = Solicitud::with([
+                                            'archivosRppSolicitados.archivo',
+                                            'archivosRppSolicitados.repartidor',
+                                            'archivosRppSolicitados.entregadoPor',
+                                            'archivosRppSolicitados.recibidoPor'
+                                        ])
+                                        ->where('id', $id)
+                                        ->first();
+
+        $this->empleado = $this->solicitud->asignado_a;
+
+        $this->formacion = $this->solicitud->formacion;
+
+    }
+
+    public function borrar(){
+
+        try{
+
+            DB::transaction(function () {
+
+                $solicitud = Solicitud::with('archivosRppSolicitados.archivo')->find($this->selected_id);
+
+                foreach ($solicitud->archivosRppSolicitados as $archivoSolicitado) {
+
+                    $archivo = $archivoSolicitado->archivo;
+
+                    $archivoSolicitado->delete();
+
+                    $archivo->delete();
+
+                }
+
+                $solicitud->delete();
+
+                $this->resetearTodo();
+
+                $this->dispatchBrowserEvent('mostrarMensaje', ['success', "La solicitud se eliminó con éxito."]);
+
+            });
+
+        } catch (\Throwable $th) {
+
+            Log::error("Error al eliminar solicitud por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
+            $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
+            $this->resetearTodo();
+
+        }
+
+    }
+
+    public function removerArchivo($id){
+
+        $this->validate(['observaciones' => 'required']);
+
+        try{
+
+            DB::transaction(function () use ($id){
+
+                $archivoSolicitado = RppArchivoSolicitud::find($id);
+
+                $archivo = $archivoSolicitado->archivo;
+
+                $archivoSolicitado->delete();
+
+                $archivo->delete();
+
+                if($this->solicitud->observaciones)
+                    $observaciones = $this->solicitud->observaciones . ' | ' . $this->observaciones;
+                else
+                    $observaciones = $this->observaciones;
+
+                $this->solicitud->update([
+                    'observaciones' => $observaciones,
+                    'actualizado_por' => auth()->user()->id
+                ]);
+
+                $this->solicitud->refresh();
+
+                $this->solicitud->load('archivosRppSolicitados.archivo', 'archivosRppSolicitados.repartidor', 'archivosRppSolicitados.entregadoPor', 'archivosRppSolicitados.recibidoPor');
+
+                $this->reset('observaciones');
+
+            });
+
+        } catch (\Throwable $th) {
+
+            Log::error("Error al remover archivo por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
+            $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
+            $this->resetearTodo();
+
+        }
+
+    }
+
+    public function abrirModalVer($id){
+
+        $this->resetearTodo();
+        $this->modalVer = true;
+
+        $this->solicitud = Solicitud::with(['archivosRppSolicitados.archivo', 'archivosRppSolicitados.repartidor', 'archivosRppSolicitados.entregadoPor', 'archivosRppSolicitados.recibidoPor'])->where('id', $id)->first();
+
+        if($this->solicitud->archivos)
+            $this->archivos = json_decode($this->solicitud->archivos);
+
+    }
+
+    public function aceptarRechazar($tipo){
 
         if($tipo == 'aceptar'){
 
             try{
 
-                $solicitud->update(['estado' => 'aceptada', 'actualizado_por' => auth()->user()->id]);
-
-                foreach($solicitud->archivosRppSolicitados as $archivo)
-                    $archivo->archivo->update(['estado' => 'ocupado']);
+                $this->solicitud->update(['estado' => 'aceptada', 'actualizado_por' => auth()->user()->id]);
 
             } catch (\Throwable $th) {
 
@@ -258,16 +304,29 @@ class SolicitudesRpp extends Component
 
         }else{
 
+            $this->validate(['observaciones' => 'required']);
+
             try{
 
-                $solicitud->update(['estado' => 'rechazada', 'actualizado_por' => auth()->user()->id]);
+                DB::transaction(function (){
 
-                foreach($solicitud->archivosRppSolicitados as $archivoSolicitado)
-                $archivoSolicitado->archivo->update(['estado' => 'disponible']);
+                    $this->solicitud->update(['estado' => 'rechazada', 'actualizado_por' => auth()->user()->id]);
+
+                    foreach ($this->solicitud->archivosRppSolicitados as $archivoSolicitado) {
+
+                        $archivo = $archivoSolicitado->archivo;
+
+                        $archivoSolicitado->delete();
+
+                        $archivo->delete();
+
+                    }
+
+                });
 
             } catch (\Throwable $th) {
 
-                Log::error("Error al rechazar solicitud id: " . $id . " por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
+                Log::error("Error al rechazar solicitud id: " . $this->solicitud->folio . " por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
                 $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
                 $this->resetearTodo();
 
@@ -279,25 +338,29 @@ class SolicitudesRpp extends Component
 
     }
 
-    public function entregarRecibir($id, $tipo){
+    public function recibirRegresar($tipo){
 
-        $solicitud = Solicitud::with('archivosRppSolicitados.archivo')->where('id', $id)->first();
-
-        if($tipo == 'entregar'){
+        if($tipo == 'recibir'){
 
             try{
 
-                $solicitud->update(['estado' => 'entregada']);
+                DB::transaction(function (){
 
-                foreach($solicitud->archivosRppSolicitados as $archivoSolicitado)
-                    $archivoSolicitado->update([
-                        'entregado_por' => auth()->user()->id,
-                        'entregado_en' => now()
-                    ]);
+                    $this->solicitud->update(['estado' => 'entregada']);
+
+                    foreach($this->solicitud->archivosRppSolicitados as $archivoSolicitado)
+                        $archivoSolicitado->update([
+                            'entregado_por' => auth()->user()->id,
+                            'entregado_en' => now()
+                        ]);
+
+                    $this->dispatchBrowserEvent('mostrarMensaje', ['success', "Los archivos se recibieron con éxito."]);
+
+                });
 
             } catch (\Throwable $th) {
 
-                Log::error("Error al rechazar solicitud id: " . $id . " por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
+                Log::error("Error al entregar solicitud id: " . $this->solicitud->folio . " por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
                 $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
                 $this->resetearTodo();
 
@@ -305,32 +368,75 @@ class SolicitudesRpp extends Component
 
         }else{
 
-            try{
 
-                $solicitud->update(['estado' => 'regresada']);
+            $this->dispatchBrowserEvent('ingresaClave');
 
-                foreach($solicitud->archivosRppSolicitados as $archivoSolicitado){
-                    $archivoSolicitado->update([
-                        'regresado_en' => now(),
-                        'recibido_por' => auth()->user()->id
-                    ]);
+        }
 
-                    $archivoSolicitado->archivo->update([
-                        'estado' => 'disponible'
-                    ]);
-                }
+    }
 
-            } catch (\Throwable $th) {
+    public function revisarClave($clave){
 
-                Log::error("Error al recibir solicitud id: " . $id . " por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
-                $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
-                $this->resetearTodo();
+        $surtidores = User::whereHas('roles', function($q){
+                            $q->where('name', 'Surtidor RPP');
+                        })
+                        ->where('status', 'activo')
+                        ->get();
+
+        if($surtidores->count() == 0){
+
+            $this->dispatchBrowserEvent('mostrarMensaje', ['error', 'No hay repartidores con la contraseña ingresada.']);
+
+            return;
+
+        }
+
+        $user = null;
+
+        foreach($surtidores as $surtidor){
+
+            if(Hash::check($clave, $surtidor->password)){
+
+                $user = $surtidor;
 
             }
 
         }
 
-        $this->resetearTodo();
+        if(!$user){
+
+            $this->dispatchBrowserEvent('mostrarMensaje', ['error', 'No hay repartidores con la contraseña ingresada.']);
+
+            return;
+
+        }
+
+        try{
+
+            DB::transaction(function () use($user){
+
+                $this->solicitud->update(['estado' => 'regresada']);
+
+                foreach($this->solicitud->archivosRppSolicitados as $archivoSolicitado){
+
+                    $archivoSolicitado->update([
+                        'regresado_en' => now(),
+                        'recibido_por' => $user->id
+                    ]);
+
+                }
+
+                $this->dispatchBrowserEvent('mostrarMensaje', ['success', "Los archivos se regresaron con éxito."]);
+
+            });
+
+        } catch (\Throwable $th) {
+
+            Log::error("Error al regresar solicitud id: " . $this->solicitud->folio . " por el usuario: (id: " . auth()->user()->id . ") " . auth()->user()->name . ". " . $th->getMessage());
+            $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Ha ocurrido un error."]);
+            $this->resetearTodo();
+
+        }
 
     }
 
@@ -342,13 +448,15 @@ class SolicitudesRpp extends Component
         $this->empleados = [
             0 => [
                 'id' => 1,
-                'nombre' => 'Prueba 1'
+                'nombre' => 'Enrique de Jesus Robledo Camacho'
             ],
             1 => [
                 'id' => 2,
-                'nombre' => 'Prueba 2'
+                'nombre' => 'Jesus Manriquez Vargas'
             ]
         ];
+
+        $this->distritos = Constantes::DISTRITOS;
 
     }
 
@@ -359,7 +467,7 @@ class SolicitudesRpp extends Component
 
         if(auth()->user()->hasRole('Administrador')){
 
-            $solicitudes = Solicitud::with('creadoPor', 'actualizadoPor')
+            $solicitudes = Solicitud::with('creadoPor', 'actualizadoPor', 'archivosRppSolicitados.archivo', 'archivosRppSolicitados.entregadoPor', 'archivosRppSolicitados.recibidoPor','archivosRppSolicitados.repartidor')
                                     ->withCount('archivosRppSolicitados', 'archivosCatastroSolicitados')
                                     ->where('ubicacion', 'RPP')
                                     ->where(function($q){
@@ -372,7 +480,7 @@ class SolicitudesRpp extends Component
         }
         elseif(auth()->user()->hasRole('Solicitante RPP')){
 
-            $solicitudes = Solicitud::with('creadoPor', 'actualizadoPor')
+            $solicitudes = Solicitud::with('creadoPor', 'actualizadoPor', 'archivosRppSolicitados.archivo', 'archivosRppSolicitados.entregadoPor', 'archivosRppSolicitados.recibidoPor','archivosRppSolicitados.repartidor')
                                     ->withCount('archivosRppSolicitados', 'archivosCatastroSolicitados')
                                     ->where(function($q){
                                         return $q->where('ubicacion', 'RPP')
@@ -386,7 +494,7 @@ class SolicitudesRpp extends Component
                                     ->paginate($this->pagination);
 
         }else{
-            $solicitudes = Solicitud::with('creadoPor', 'actualizadoPor')
+            $solicitudes = Solicitud::with('creadoPor', 'actualizadoPor', 'archivosRppSolicitados.archivo', 'archivosRppSolicitados.entregadoPor', 'archivosRppSolicitados.recibidoPor','archivosRppSolicitados.repartidor')
                                     ->withCount('archivosRppSolicitados', 'archivosCatastroSolicitados')
                                     ->where('ubicacion', 'RPP')
                                     ->where(function($q){

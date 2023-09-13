@@ -108,11 +108,11 @@
 
                         </th>
 
-                        <th wire:click="order('tomo_bis')" class="cursor-pointer px-3 py-3 hidden lg:table-cell">
+                        <th wire:click="order('registro')" class="cursor-pointer px-3 py-3 hidden lg:table-cell">
 
-                            Tomo Bis
+                            Registro
 
-                            @if($sort == 'tomo_bis')
+                            @if($sort == 'registro')
 
                                 @if($direction == 'asc')
 
@@ -199,7 +199,39 @@
 
                         </th>
 
-                        <th class="px-3 py-3 hidden lg:table-cell">Arcvhivo</th>
+                        <th wire:click="order('formacion')" class="cursor-pointer px-3 py-3 hidden lg:table-cell">
+
+                            Formación
+
+                            @if($sort == 'formacion')
+
+                                @if($direction == 'asc')
+
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 float-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
+                                    </svg>
+
+                                @else
+
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 float-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                                    </svg>
+
+                                @endif
+
+                            @else
+
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 float-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                </svg>
+
+                            @endif
+
+                        </th>
+
+                        <th class="px-3 py-3 hidden lg:table-cell">Observaciones</th>
+
+                        {{-- <th class="px-3 py-3 hidden lg:table-cell">Arcvhivo</th> --}}
 
                         <th wire:click="order('created_at')" class="cursor-pointer px-3 py-3 hidden lg:table-cell">
 
@@ -301,13 +333,9 @@
 
                             <td class="px-3 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
 
-                                <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Localidad</span>
+                                <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Registro</span>
 
-                                @if ($archivo->tomo_bis)
-                                    {{ $archivo->tomo_bis }}
-                                @else
-                                    N/A
-                                @endif
+                                {{ $archivo->registro }}
 
                             </td>
 
@@ -329,6 +357,26 @@
 
                             <td class="px-3 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
 
+                                <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Formación</span>
+
+                                @if($archivo->formacion)
+                                    <span class="bg-green-400 px-2 py-1 text-xs rounded-full capitalize text-white">Si</span>
+                                @else
+                                    <span class="px-2 py-1 bg-red-400 text-white text-xs rounded-full capitalize">No</span>
+                                @endif
+
+                            </td>
+
+                            <td class="px-3 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
+
+                                <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Observaciones</span>
+
+                                {{ $archivo->observaciones ?? 'N/A' }}
+
+                            </td>
+
+                            {{-- <td class="px-3 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
+
                                 <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Folio</span>
 
                                 @if($archivo->archivo)
@@ -341,7 +389,7 @@
 
                                 @endif
 
-                            </td>
+                            </td> --}}
 
                             <td class="px-3 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
 
@@ -377,7 +425,7 @@
 
                                     <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Acciones</span>
 
-                                    <div class="flex justify-center lg:justify-start">
+                                    {{-- <div class="flex justify-center lg:justify-start">
 
                                         @can('Incidencias archivo rpp')
 
@@ -417,7 +465,7 @@
 
                                             </button>
 
-                                        @endcan
+                                        @endcan --}}
 
                                         @can('Borrar archivo rpp')
 
@@ -425,7 +473,7 @@
                                                 wire:click="abrirModalBorrar({{$archivo}})"
                                                 wire:loading.attr="disabled"
                                                 wire:target="abrirModalBorrar({{$archivo}})"
-                                                class="bg-red-400 hover:shadow-lg text-white text-xs md:text-sm px-3 py-2 rounded-full hover:bg-red-700 flex focus:outline-none"
+                                                class="bg-red-400 hover:shadow-lg text-white text-xs md:text-sm px-3 py-1 rounded-full hover:bg-red-700 flex focus:outline-none"
                                             >
 
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
@@ -508,7 +556,7 @@
 
                     <div>
 
-                        <input type="text" class="bg-white rounded text-sm w-full" wire:model.defer="tomo">
+                        <input type="number" class="bg-white rounded text-sm w-full" wire:model.defer="tomo">
 
                     </div>
 
@@ -524,19 +572,19 @@
 
                     <div>
 
-                        <Label>Tomo Bis</Label>
+                        <Label>Registro</Label>
 
                     </div>
 
                     <div>
 
-                        <input type="text" class="bg-white rounded text-sm w-full" wire:model.defer="tomo_bis">
+                        <input type="number" class="bg-white rounded text-sm w-full" wire:model.defer="registro">
 
                     </div>
 
                     <div>
 
-                        @error('tomo_bis') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
+                        @error('registro') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
 
                     </div>
 
@@ -618,15 +666,63 @@
 
                 </div>
 
+                <div class="flex-auto ">
+
+                    <div>
+
+                        <Label>Formación</Label>
+
+                    </div>
+
+                    <div>
+
+                        <input type="checkbox" class="bg-white rounded text-sm" wire:model.defer="formacion">
+
+                    </div>
+
+                    <div>
+
+                        @error('formacion') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
+
+                    </div>
+
+                </div>
+
             </div>
 
-            <x-filepond wire:model="archivoPDF" />
+            <div class="flex flex-col md:flex-row justify-between md:space-x-3 mb-5">
+
+                <div class="flex-auto ">
+
+                    <div>
+
+                        <Label>Observaciones</Label>
+
+                    </div>
+
+                    <div>
+
+                        <textarea class="bg-white rounded text-sm w-full" wire:model.defer="observaciones" rows="3"></textarea>
+
+                    </div>
+
+                    <div>
+
+                        @error('observaciones') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {{-- <x-filepond wire:model="archivoPDF" />
 
             <div>
 
                 @error('archivoPDF') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
 
-            </div>
+            </div> --}}
 
         </x-slot>
 

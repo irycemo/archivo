@@ -118,6 +118,8 @@ class DashboardController extends Controller
                                                 'solicitudes_vencidas_solicitante'
                                             ));
 
+        }else{
+            return view('dashboard');
         }
 
     }

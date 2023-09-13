@@ -22,7 +22,10 @@ class RppArchivos extends Component
 
     public $estado;
     public $tomo;
+    public $registro;
     public $tomo_bis;
+    public $formacion = false;
+    public $observaciones;
     public $seccion;
     public $distrito;
     public $archivoPDF;
@@ -39,6 +42,7 @@ class RppArchivos extends Component
             'archivoPDF' => 'nullable|mimes:pdf',
             'seccion' => 'required',
             'distrito' => 'required|numeric',
+            'registro' => 'required',
          ];
     }
 
@@ -50,7 +54,7 @@ class RppArchivos extends Component
     public function resetearTodo(){
 
         $this->dispatchBrowserEvent('removeFiles');
-        $this->reset(['modalBorrar', 'archivoPDF', 'crear', 'editar', 'modal', 'estado', 'tomo', 'tomo_bis', 'seccion', 'distrito', 'modalIncidencias', 'incidencias','incidenciaTipo', 'incidenciaObservaciones']);
+        $this->reset(['modalBorrar', 'registro', 'formacion', 'observaciones', 'archivoPDF', 'crear', 'editar', 'modal', 'estado', 'tomo', 'tomo_bis', 'seccion', 'distrito', 'modalIncidencias', 'incidencias','incidenciaTipo', 'incidenciaObservaciones']);
         $this->resetErrorBag();
         $this->resetValidation();
     }
@@ -77,6 +81,9 @@ class RppArchivos extends Component
         $this->tomo_bis = $modelo['tomo_bis'];
         $this->seccion = $modelo['seccion'];
         $this->distrito = $modelo['distrito'];
+        $this->distrito = $modelo['registro'];
+        $this->distrito = $modelo['formacion'];
+        $this->distrito = $modelo['observaciones'];
     }
 
     public function crear(){
@@ -97,6 +104,9 @@ class RppArchivos extends Component
                 $archivo = RppArchivo::create([
                     'estado' => 'disponible',
                     'tomo' => $this->tomo,
+                    'registro' => $this->registro,
+                    'formacion' => $this->formacion,
+                    'observaciones' => $this->observaciones,
                     'tomo_bis' => $this->tomo_bis,
                     'seccion' => $this->seccion,
                     'distrito' => $this->distrito,
@@ -147,6 +157,9 @@ class RppArchivos extends Component
                 $archivo->update([
                     'estado' => $this->estado,
                     'tomo' => $this->tomo,
+                    'registro' => $this->registro,
+                    'formacion' => $this->formacion,
+                    'observaciones' => $this->observaciones,
                     'tomo_bis' => $this->tomo_bis,
                     'seccion' => $this->seccion,
                     'distrito' => $this->distrito,
@@ -283,6 +296,7 @@ class RppArchivos extends Component
         $archivos = RppArchivo::with('archivo', 'creadoPor', 'actualizadoPor')
                                 ->where('estado', 'LIKE', '%' . $this->search . '%')
                                 ->orWhere('tomo', 'LIKE', '%' . $this->search . '%')
+                                ->orWhere('registro', 'LIKE', '%' . $this->search . '%')
                                 ->orWhere('tomo_bis', 'LIKE', '%' . $this->search . '%')
                                 ->orWhere('seccion', 'LIKE', '%' . $this->search . '%')
                                 ->orWhere('distrito', 'LIKE', '%' . $this->search . '%')

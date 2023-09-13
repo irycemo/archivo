@@ -19,9 +19,9 @@ class Solicitud extends Model implements Auditable
     use \OwenIt\Auditing\Auditable;
 
 
-    protected $fillable = ['tiempo', 'estado', 'entregado_en', 'regresado_en', 'surtidor', 'ubicacion', 'creado_por', 'actualizado_por', 'numero'];
+    protected $fillable = ['tiempo', 'estado', 'entregado_en', 'regresado_en', 'surtidor', 'ubicacion', 'creado_por', 'actualizado_por', 'numero', 'observaciones', 'asignado_a', 'surtidor', 'archivos', 'formacion'];
 
-    public function surtidor(){
+    public function repartidor(){
         return $this->belongsTo(User::class, 'surtidor');
     }
 

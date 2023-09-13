@@ -16,7 +16,7 @@ class RppArchivo extends Model implements Auditable
     use \OwenIt\Auditing\Auditable;
 
 
-    protected $fillable = ['tomo', 'tomo_bis', 'seccion', 'distrito', 'estado', 'creado_por', 'actualizado_por'];
+    protected $fillable = ['tomo', 'tomo_bis', 'seccion', 'distrito', 'estado', 'creado_por', 'actualizado_por', 'formacion', 'observaciones', 'registro'];
 
     public function archivo(){
         return $this->morphOne(File::class, 'fileable');

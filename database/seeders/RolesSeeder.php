@@ -23,7 +23,7 @@ class RolesSeeder extends Seeder
         $role5 = Role::create(['name' => 'Distribuidor Rpp']);
         $role6 = Role::create(['name' => 'Despachador RPP']);
         $role7 = Role::create(['name' => 'Despachador Catastro']);
-        $role8 = Role::create(['name' => 'Surtidor']);
+        $role8 = Role::create(['name' => 'Surtidor RPP']);
         $role9 = Role::create(['name' => 'Solicitante RPP']);
         $role10 = Role::create(['name' => 'Solicitante Catastro']);
         $role11 = Role::create(['name' => 'Digitalizador RPP']);

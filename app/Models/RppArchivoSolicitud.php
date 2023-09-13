@@ -12,6 +12,12 @@ class RppArchivoSolicitud extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'entregado_en' => 'datetime:d-m-Y H:i:s',
+        'regresado_en' => 'datetime:d-m-Y H:i:s',
+        'archivos' => 'array'
+    ];
+
     protected $fillable= ['rpp_archivo_id', 'solicitud_id', 'asignado_a', 'surtidor', 'entregado_en', 'regresado_en', 'entregado_por', 'recibido_por'];
 
     public function archivo(){
