@@ -45,15 +45,6 @@ class SolicitudesRpp extends Component
 
     public function abrirModalCrear(){
 
-        $solicitudes_vencidas = Solicitud::where('creado_por', auth()->user()->id)->where('estado', 'entregada')->where('tiempo', '<', now()->toDateString())->get();
-
-        if($solicitudes_vencidas->count() > 0){
-
-            $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Tiene solicitudes con timempo vencido, es necesario regresarlas para poder seguir haciendo solicitudes."]);
-
-            return;
-        }
-
         $this->resetearTodo();
         $this->modal = true;
         $this->crear =true;
@@ -61,11 +52,43 @@ class SolicitudesRpp extends Component
 
     }
 
+    public function calcularArchivosOcupados(){
+
+        $solicitudes = Solicitud::where('creado_por', auth()->user()->id)
+                                            ->where('formacion', false)
+                                            ->whereIn('estado', ['entregada', 'nueva'])
+                                            ->pluck('id');
+
+        $archivo = RppArchivo::whereHas('rppArchivoSolicitud', function($q) use($solicitudes){
+                                                $q->whereIn('solicitud_id', $solicitudes);
+                                            })
+                                            ->count();
+
+        return $archivo;
+
+    }
+
+    public function calcularArchivosFormacionOcupados(){
+
+        $solicitudes_formacion = Solicitud::where('creado_por', auth()->user()->id)
+                                            ->where('formacion', true)
+                                            ->whereIn('estado', ['nueva', 'regresada'])
+                                            ->pluck('id');
+
+        $archivoFormacion = RppArchivo::whereHas('rppArchivoSolicitud', function($q) use($solicitudes_formacion){
+                                                $q->whereIn('solicitud_id', $solicitudes_formacion);
+                                            })
+                                            ->count();
+
+        return $archivoFormacion;
+
+    }
+
     public function agregar(){
 
         $this->validate([
             'tomo' => 'required',
-            'registro' => 'required',
+            'registro' => 'required_if:formacion,true',
             'seccion' => 'required',
             'distrito' => 'required',
             'formacion' => 'required',
@@ -84,6 +107,27 @@ class SolicitudesRpp extends Component
             $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Archivo no disponible."]);
 
             return;
+
+        }
+
+        if($this->formacion){
+
+            if($this->calcularArchivosFormacionOcupados() > 10){
+
+                $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Tienes 10 archivos de formación en tus solicitudes, no puedes pedir más."]);
+
+                return;
+            }
+
+        }else{
+
+
+            if($this->calcularArchivosOcupados() > 20){
+
+                $this->dispatchBrowserEvent('mostrarMensaje', ['error', "Tienes 20 archivos en tus solicitudes, no puedes pedir más."]);
+
+                return;
+            }
 
         }
 
@@ -111,7 +155,7 @@ class SolicitudesRpp extends Component
 
             $this->solicitud = Solicitud::create([
                 'numero' => Solicitud::max('numero') + 1,
-                'tiempo' => $this->calcularFechaEntrega(30),
+                'tiempo' => $this->calcularFechaEntrega(3),
                 'estado' => 'nueva',
                 'creado_por' => auth()->user()->id,
                 'ubicacion' => 'RPP',

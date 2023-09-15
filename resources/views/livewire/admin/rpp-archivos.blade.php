@@ -78,6 +78,12 @@
 
                         </th>
 
+                        <th  class="px-3 py-3 hidden lg:table-cell">
+
+                            Estado
+
+                        </th>
+
                         <th wire:click="order('tomo')" class="cursor-pointer px-3 py-3 hidden lg:table-cell">
 
                             Tomo
@@ -320,6 +326,14 @@
                                 @else
                                     <span class="bg-red-400 px-2 py-1 text-xs rounded-full capitalize text-white">{{ $archivo->estado }}</span>
                                 @endif
+
+                            </td>
+
+                            <td class="px-3 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
+
+                                <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Solicitud</span>
+
+                                <a href="{{ route('rpp_solicitudes') . "?search=" . $archivo->rppArchivoSolicitud?->solicitud->numero }}" class="cursor-pointer inline-block text-blue-600 underline">{{ $archivo->rppArchivoSolicitud?->solicitud->numero }}</a>
 
                             </td>
 

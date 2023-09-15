@@ -293,7 +293,7 @@ class RppArchivos extends Component
 
         $tipos = collect(Constantes::INCIDENCIAS)->sort();
 
-        $archivos = RppArchivo::with('archivo', 'creadoPor', 'actualizadoPor')
+        $archivos = RppArchivo::with('archivo', 'creadoPor', 'actualizadoPor', 'rppArchivoSolicitud.solicitud')
                                 ->where('estado', 'LIKE', '%' . $this->search . '%')
                                 ->orWhere('tomo', 'LIKE', '%' . $this->search . '%')
                                 ->orWhere('registro', 'LIKE', '%' . $this->search . '%')

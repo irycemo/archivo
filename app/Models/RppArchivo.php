@@ -30,4 +30,8 @@ class RppArchivo extends Model implements Auditable
         'deleted',
     ];
 
+    public function rppArchivoSolicitud(){
+        return $this->hasOne(RppArchivoSolicitud::class);
+    }
+
 }
