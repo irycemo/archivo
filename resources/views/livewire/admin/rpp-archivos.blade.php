@@ -80,7 +80,7 @@
 
                         <th  class="px-3 py-3 hidden lg:table-cell">
 
-                            Estado
+                            Solicitud
 
                         </th>
 
