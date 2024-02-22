@@ -59,6 +59,15 @@ class DistribuidorRpp extends Component
                                     ->where('estado', 'aceptada')
                                     ->get();
 
+        if($solicitudes->count() === 0){
+
+            $this->dispatchBrowserEvent('mostrarMensaje', ['error', "El surtidor no tiene carga de trabajo."]);
+
+            return;
+
+
+        }
+
         $surtidor = $solicitudes->first()->repartidor->name;
 
         $pdf = Pdf::loadView('solicitudes.cargaTrabajo', compact(

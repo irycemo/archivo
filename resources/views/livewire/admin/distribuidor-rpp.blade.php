@@ -378,9 +378,9 @@
                 </button>
 
                 <button
-                    wire:click="resetearTodo"
+                    wire:click="$toggle('modalCarga')"
                     wire:loading.attr="disabled"
-                    wire:target="resetearTodo"
+                    wire:target="$toggle('modalCarga')"
                     type="button"
                     class="bg-red-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-red-700 flaot-left focus:outline-none">
                     Cerrar

@@ -4,7 +4,7 @@
 
     <div class=" mb-10">
 
-        @if (auth()->user()->hasRole(['Solicitante RPP', 'Solicitante Catastro']))
+        @if (auth()->user()->hasRole(['Solicitante RPP', 'Solicitante Catastro', 'Administrador']))
 
             <h2 class="text-2xl tracking-widest py-3 px-6 text-gray-600 rounded-xl border-b-2 border-gray-500 font-semibold mb-6  bg-white">Estadisticas del mes actual de solictudes</h2>
 
