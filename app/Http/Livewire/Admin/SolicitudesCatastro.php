@@ -387,7 +387,7 @@ class SolicitudesCatastro extends Component
     public function mount(){
 
         /* if(auth()->user()->hasRole('Solicitante Catastro')) */
-            $this->empleados = Http::acceptJson()->get('http://10.0.250.54/gestionpersonal/public/api/empleados_presentes/' . rawurlencode(auth()->user()->area))->collect();
+            $this->empleados = Http::acceptJson()->get('https://siga.irycem.michoacan.gob.mx/sgesttionpersonal/api/empleados_presentes/' . rawurlencode(auth()->user()->area))->collect();
 
     }
 
